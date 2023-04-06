@@ -1,7 +1,8 @@
 import { Card, CardHeader, CardBody, CardFooter, Flex, Avatar, Box, Heading, IconButton, Text, Image, Button} from '@chakra-ui/react'
 
 
-export default function Post({name, text}) {
+export default function Post({name, text, img, del, id}) 
+{
     return (
         <Card maxW='md'>
   <CardHeader>
@@ -25,6 +26,7 @@ export default function Post({name, text}) {
     <Text>
       {text}
     </Text>
+    <Image objectFit='cover' src={img}/>
   </CardBody>
   <CardFooter
     justify='space-between'
