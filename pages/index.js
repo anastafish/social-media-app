@@ -1,4 +1,3 @@
-import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, remove} from "firebase/database";
 import {getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useRef, useState } from "react";
@@ -9,8 +8,7 @@ import { redirect } from 'next/navigation';
 
 
 export default function Home() {
-
-
+  
   const [posts, setPosts] = useState([]);
   const [text, setText] = useState("");
   const [user, setUser] = useState({})
