@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ChakraProvider,
   Input,
@@ -22,6 +22,8 @@ import { getDatabase, ref, set} from "firebase/database";
 import Link from "next/link";
 import google from '../../images/google.png'
 import Image from "next/image";
+import { useRouter } from "next/router";
+import Head from "next/head";
 
 
 function index() {
@@ -29,11 +31,23 @@ function index() {
   const auth = getAuth(app);
   const db = getDatabase(app);
   const provider = new GoogleAuthProvider();
+  const router = useRouter()
 
-  if (auth.currentUser) {
-    console.log(auth.currentUser);
-    window.open("/", "_self");
-  }
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const uid = user.uid;
+        console.log("signed in");
+        setUser(user);
+        router.push('/')
+        // ...
+      } else {
+        console.log("not signed in");
+        // User is signed out
+        // ...
+      }
+    });
+  }, []);
 
   async function newUser() {
     if (
@@ -63,7 +77,6 @@ function index() {
           name: user.user_name,
           liked: ''
         });
-        auth.currentUser && window.open("/", "_self");
       } catch (err) {
         setValid({
           isValid:false,
@@ -111,11 +124,11 @@ function index() {
   const token = credential.accessToken;
   // The signed-in user info.
   const user = result.user;
-  window.open('/', '_self')
   // IdP data available using getAdditionalUserInfo(result)
   // ...
 }).catch((error) => {
   // Handle Errors here.
+  console.log(error)
   const errorCode = error.code;
   const errorMessage = error.message;
   // The email of the user's account used.
@@ -163,6 +176,9 @@ function index() {
 
   return (
     <ChakraProvider>
+      <Head>
+            <title>SignUp</title>
+          </Head>
       <div className="flex flex-col items-center justify-center h-[100vh]">
       {!valid.isValid && <Alert status='error' position='absolute' top='20px' width='fit-content' rounded='4px'>
         <AlertIcon />
@@ -219,8 +235,8 @@ function index() {
           </div>
           <Button onClick={newUser}>Sign Up</Button>
           <Button className="flex gap-2" onClick={googleLogin}>
-            Login With google
             <Image src={google} className="w-[30px] h-[30xp]" alt="google_logo"/>
+            Login With Google
             </Button>
         </div>
       </div>

@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChakraProvider, Input, Button, FormControl, FormErrorMessage , Alert, AlertIcon, AlertTitle} from "@chakra-ui/react";
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import firebase_app from "@/firebase/config";
 import Link from "next/link";
 import google from '../../images/google.png'
 import Image from "next/image";
+import { useRouter } from "next/router";
+import Head from "next/head";
 
 function index() {
     const app = firebase_app;
     const auth = getAuth(app)
     const provider = new GoogleAuthProvider();
+    const router = useRouter()
 
     const [user, setUser] = useState({
         email: "",
@@ -22,6 +25,21 @@ function index() {
 
     const [valid, setValid]  = useState({isValid:true, message:''})
   
+    useEffect(() => {
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          const uid = user.uid;
+          console.log("signed in");
+          setUser(user);
+          router.push('/')
+          // ...
+        } else {
+          console.log("not signed in");
+          // User is signed out
+          // ...
+        }
+      });
+    }, []);
 
     function login(){
       if (
@@ -35,7 +53,6 @@ function index() {
             // Signed in 
             const user = userCredential.user;
             console.log('signed in')
-            window.open('/', '_self')
             // ...
         })
         .catch((error) => {
@@ -73,7 +90,6 @@ function index() {
     const token = credential.accessToken;
     // The signed-in user info.
     const user = result.user;
-    window.open('/', '_self')
     // IdP data available using getAdditionalUserInfo(result)
     // ...
   }).catch((error) => {
@@ -109,6 +125,9 @@ function index() {
     
       return (
         <ChakraProvider>
+          <Head>
+            <title>Login</title>
+          </Head>
           <div className="flex flex-col items-center justify-center h-[100vh]">
           {!valid.isValid && <Alert status='error' position='absolute' top='20px' width='fit-content' rounded='4px'>
         <AlertIcon />
@@ -142,9 +161,10 @@ function index() {
             </div>      
             <Button onClick={login}>Login</Button>
             <Button className="flex gap-2" onClick={googleLogin}>
-            Login With google
-            <Image src={google} className="w-[30px] h-[30xp]" alt="google_logo"/>
-            </Button>          </div>
+              <Image src={google} className="w-[30px] h-[30xp]" alt="google_logo"/>
+              Login With Google
+            </Button>     
+            </div>
           </div>
         </ChakraProvider>
       );

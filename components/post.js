@@ -11,7 +11,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import Image from "next/image";
-import { getDatabase, ref, set, remove, get, child } from "firebase/database";
+import { getDatabase, ref, set, remove, get, child, onValue } from "firebase/database";
 import { updateProfile } from "firebase/auth";
 import { useState, useEffect } from "react";
 import firebase_app from "@/firebase/config";
@@ -21,29 +21,50 @@ import share from "../images/share.svg";
 import comment from "../images/comment.svg";
 import bin from "../images/delete.svg";
 import filled_like from "../images/filled_like.svg";
+import { useRouter } from "next/router";
 
-export default function Post({ name, text, id, post, likes, photo, img}) {
+export default function Post({
+  name,
+  text,
+  id,
+  post,
+  likes,
+  photo,
+  image,
+  postDate,
+}) {
   const app = firebase_app;
   const auth = getAuth(app);
   const db = getDatabase(app);
   const [likedPosts, setLikedPosts] = useState([]);
+  const router = useRouter();
 
   function postClick() {
-    window.open(`/posts/${id}`, "_self");
+    router.push(`/posts/${id}`);
   }
 
   const [user, setUser] = useState({});
+  const [posts, setPosts] = useState([])
+
+  useEffect(() => {
+    const starCountRef = ref(db, "/posts");
+    onValue(starCountRef, (snapshot) => {
+      if (snapshot.val()) {
+        setPosts(Object.values(snapshot.val()));
+        setPosts((prevPosts) => prevPosts.slice(0).reverse());
+      }
+    });
+  }, []);
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
-        console.log("signed in");
         setUser(user);
         // ...
       } else {
         console.log("not signed in");
-        window.open("/signup", "_self");
+        router.push("/login");
         // User is signed out
         // ...
       }
@@ -53,7 +74,7 @@ export default function Post({ name, text, id, post, likes, photo, img}) {
   function like(e) {}
 
   function delPost(e) {
-    remove(ref(db, `/posts/post${e.target.id}`));
+    // remove(ref(db, `/posts/post${e.target.id}`));
   }
 
   return (
@@ -65,10 +86,7 @@ export default function Post({ name, text, id, post, likes, photo, img}) {
         <CardHeader>
           <Flex spacing="4">
             <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
-              <Avatar
-                name="Segun Adebayo"
-                src={photo}
-              />
+              <Avatar name="Segun Adebayo" src={photo} />
 
               <Box>
                 <Heading size="sm">{name}</Heading>
@@ -76,8 +94,17 @@ export default function Post({ name, text, id, post, likes, photo, img}) {
             </Flex>
           </Flex>
         </CardHeader>
-        <CardBody>
+        <CardBody className="flex flex-col gap-5">
           <Text>{text}</Text>
+          {image && (
+            <Image
+              src={image}
+              alt="post_image"
+              width={20}
+              height={20}
+              className="w-full rounded-md"
+            />
+          )}
         </CardBody>
       </div>
       <CardFooter
@@ -103,7 +130,7 @@ export default function Post({ name, text, id, post, likes, photo, img}) {
           </div>
           <Image src={comment} style={{ width: "30px" }} alt="comment-button" />
           <Image src={share} style={{ width: "30px" }} alt="share-button" />
-          {user.displayName === name && (
+          {user.displayName === name && !post && (
             <Image
               variant="ghost"
               onClick={delPost}
@@ -116,6 +143,7 @@ export default function Post({ name, text, id, post, likes, photo, img}) {
           )}
         </div>
       </CardFooter>
+      {post && <h1 className={`text-[15px] p-[1rem]`}>{postDate}</h1>}
     </Card>
   );
 }
