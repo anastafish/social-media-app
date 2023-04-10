@@ -39,7 +39,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const starCountRef = ref(db, `/posts/post${id}`);
+    const starCountRef = ref(db, `/posts/${id}`);
     onValue(starCountRef, (snapshot) => {
       setPost(snapshot.val());
     });
@@ -50,31 +50,33 @@ export default function Home() {
       <Head>
             <title>{`${post ? post.name :'user'}'s Post`}</title>
           </Head>
-      <Header user={user}>
-        <Button onClick={signOut}>Sign Out</Button>
-      </Header>
-      <div className="flex items-center justify-center h-[100vh] relative">
-        <Link href='/'>
-          <Image src={arrow} alt='back' className="absolute top-10 left-10"/>
-        </Link>
-        <div
-          className="
-          flex flex-col items-center justify-center
-          m-5 overflow-y-clip gap-4 w-full
-          "
-        >
-          {post && (
-            <Post
-              name={post.name}
-              text={post.text}
-              id={post.id}
-              post={true}
-              postDate={post.date}
-              image={post.image}
-            />
-          )}
+        <Header user={user}>
+          <Button onClick={signOut}>Sign Out</Button>
+        </Header>
+        <div className="flex flex-col gap-5 items-center justify-center relative">
+          <div className="w-full mt-2 p-2">
+            <Link href='/'>
+              <Image src={arrow} alt='back' className="self-start"/>
+            </Link>
+          </div>
+          <div
+            className="
+            flex flex-col items-center justify-center
+            m-5 overflow-y-clip gap-4 w-full
+            "
+          >
+            {post && (
+              <Post
+                name={post.name}
+                text={post.text}
+                id={post.id}
+                post={true}
+                postDate={post.date}
+                image={post.image}
+              />
+            )}
+          </div>
         </div>
-      </div>
     </ChakraProvider>
   );
 }

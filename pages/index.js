@@ -7,7 +7,7 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
-  Input
+  Button
 } from "@chakra-ui/react";
 import Post from "@/components/post";
 import firebase_app from "@/firebase/config";
@@ -17,10 +17,11 @@ import Head from "next/head";
 import Image from "next/image";
 import gallery from '../images/gallery.svg' 
 import ClipLoader from "react-spinners/ClipLoader";
+import uniqid from 'uniqid';
 
 
 export default function Home() {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState(undefined);
   const [text, setText] = useState("");
   const [user, setUser] = useState({});
   const [valid, setValid] = useState(true);
@@ -54,23 +55,27 @@ export default function Home() {
     const starCountRef = ref(db, "/posts");
     onValue(starCountRef, (snapshot) => {
       if (snapshot.val()) {
-        setPosts(Object.values(snapshot.val()));
-        setPosts((prevPosts) => prevPosts.slice(0).reverse());
+        const values = Object.values(snapshot.val()).slice(0).reverse()
+        setPosts(() => {
+          return [...values].sort((a,b) => {
+            a.date < b.date ? 1 : -1 
+          })
+        })
       }
-    });
+      else {
+        setPosts(null)
+      }
+    });    
   }, []);
 
   function newPost() {
-    const date = new Date()
+    const date = new Date()    
+    const id = uniqid()
     if (text.trim()) {
-        const postNum =
-          posts.length + 1 < 10
-            ? "0" + String(posts.length + 1)
-            : String(posts.length + 1);
-        set(ref(db, `/posts/post${postNum}`), {
+        set(ref(db, `/posts/${id}`), {
           name: user.displayName,
           text: text,
-          id: postNum,
+          id: id,
           likes: 0,
           photo:
             user.photoURL ||
@@ -80,12 +85,6 @@ export default function Home() {
           });
           setFile('');
           const starCountRef = ref(db, "/posts");
-          onValue(starCountRef, (snapshot) => {
-            if (snapshot.val()) {
-              setPosts(Object.values(snapshot.val()));
-              setPosts((prevPosts) => prevPosts.slice(0).reverse());
-            }
-    });
     } else {
       setValid(false);
       setTimeout(() => {
@@ -114,7 +113,7 @@ export default function Home() {
       <div
         className="
       flex flex-col items-center justify-center
-      m-5 overflow-y-clip gap-4  
+      m-5 overflow-y-clip gap-20  
       "
       >
         {!valid && (
@@ -129,7 +128,7 @@ export default function Home() {
             <AlertTitle>Type Somthing before posting</AlertTitle>
           </Alert>
         )} 
-        <div className="w-[60%] h-[5rem] relative">
+        <div className="flex flex-col gap-2 items-center w-[60%] h-[5rem] relative">
           <Textarea
             placeholder="Type Something"
             onKeyDown={(e) => {
@@ -145,21 +144,32 @@ export default function Home() {
             resize="none"
             focusBorderColor="transparent"
           />
-            <input
-             type="file"
-             id="file"
-             onChange={handleFile}
-             aria-label="File browser example"
-             className="absolute bottom-1 right-1 w-[30px] h-[30px] z-10 opacity-0 cursor-pointer"
-             />
-              <Image 
-              src={gallery} 
-              className="cursor-pointer absolute bottom-1
-              right-1 w-[30px] h-[30px] z-[9]"
-              alt='choose_image'
-              />
+              <input
+               type="file"
+               id="file"
+               onChange={handleFile}
+               className="absolute bottom-1 right-1 w-[30px] h-[30px] z-10 opacity-0 cursor-pointer"
+               />
+                <Image
+                src={gallery}
+                className="cursor-pointer absolute bottom-1
+                right-1 w-[30px] h-[40px] z-[9]"
+                alt='choose_image'
+                />
+                <Button 
+                onClick={newPost}
+                className="p-2"
+                >Post</Button>
         </div>
-        {posts.length !== 0 ? (
+        {file && <Image
+                 src={file}
+                alt="post_image"
+                width={20}
+                height={20}
+                className="w-[10rem] h-[10rem] rounded-md"
+                 />}
+
+        {posts && (
           posts.map((post, index) => {
             return (
               <Post
@@ -175,9 +185,10 @@ export default function Home() {
               />
             );
           })
-        ) : (
-          <ClipLoader size={75}/>
-          )}
+        ) 
+          }
+          {posts === undefined && <ClipLoader size={75}/>}
+          {posts === null && <h1>No Posts</h1>}
       </div>
     </ChakraProvider>
   );

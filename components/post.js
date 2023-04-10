@@ -50,8 +50,7 @@ export default function Post({
     const starCountRef = ref(db, "/posts");
     onValue(starCountRef, (snapshot) => {
       if (snapshot.val()) {
-        setPosts(Object.values(snapshot.val()));
-        setPosts((prevPosts) => prevPosts.slice(0).reverse());
+        setPosts(Object.values(snapshot.val()).slice(0).reverse());
       }
     });
   }, []);
@@ -74,7 +73,7 @@ export default function Post({
   function like(e) {}
 
   function delPost(e) {
-    // remove(ref(db, `/posts/post${e.target.id}`));
+    remove(ref(db, `/posts/${e.target.id}`));
   }
 
   return (
@@ -102,7 +101,7 @@ export default function Post({
               alt="post_image"
               width={20}
               height={20}
-              className="w-full rounded-md"
+              className="w-full h-[25rem] rounded-md"
             />
           )}
         </CardBody>
