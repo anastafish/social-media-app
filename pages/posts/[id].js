@@ -67,12 +67,14 @@ export default function Home() {
           >
             {post && (
               <Post
-                name={post.name}
-                text={post.text}
-                id={post.id}
-                post={true}
-                postDate={post.date}
-                image={post.image}
+              name={post.name}
+              text={post.text}
+              id={post.id}
+              likes={post.likes}
+              photo={post.photo}
+              postDate={post.date}
+              image={post.image}
+              post={true}
               />
             )}
           </div>

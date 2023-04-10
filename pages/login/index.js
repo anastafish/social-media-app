@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ChakraProvider, Input, Button, FormControl, FormErrorMessage , Alert, AlertIcon, AlertTitle} from "@chakra-ui/react";
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import firebase_app from "@/firebase/config";
+import { getDatabase, ref, set, get, child} from "firebase/database";
 import Link from "next/link";
 import google from '../../images/google.png'
 import Image from "next/image";
@@ -12,6 +13,7 @@ function index() {
     const app = firebase_app;
     const auth = getAuth(app)
     const provider = new GoogleAuthProvider();
+    const db = getDatabase(app);
     const router = useRouter()
 
     const [user, setUser] = useState({
@@ -90,6 +92,18 @@ function index() {
     const token = credential.accessToken;
     // The signed-in user info.
     const user = result.user;
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `/users/${user.uid}`)).then((snapshot) => {
+      if (!snapshot.exists()) {
+        set(ref(db, `/users/${result.user.uid}`), {
+          name: result.user.displayName,
+          liked: ''
+        });
+      }
+    }).catch((error) => {
+      console.error(error);
+    });   
+
     // IdP data available using getAdditionalUserInfo(result)
     // ...
   }).catch((error) => {

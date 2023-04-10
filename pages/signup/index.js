@@ -18,7 +18,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { getDatabase, ref, set} from "firebase/database";
+import { getDatabase, ref, set, get, child} from "firebase/database";
 import Link from "next/link";
 import google from '../../images/google.png'
 import Image from "next/image";
@@ -124,6 +124,19 @@ function index() {
   const token = credential.accessToken;
   // The signed-in user info.
   const user = result.user;
+
+  const dbRef = ref(getDatabase());
+    get(child(dbRef, `/users/${user.uid}`)).then((snapshot) => {
+      if (!snapshot.exists()) {
+        set(ref(db, `/users/${result.user.uid}`), {
+          name: result.user.displayName,
+          liked: ''
+        });
+      }
+    }).catch((error) => {
+      console.error(error);
+    });   
+  
   // IdP data available using getAdditionalUserInfo(result)
   // ...
 }).catch((error) => {

@@ -113,7 +113,7 @@ export default function Home() {
       <div
         className="
       flex flex-col items-center justify-center
-      m-5 overflow-y-clip gap-20  
+      m-5 overflow-y-clip gap-16  
       "
       >
         {!valid && (
