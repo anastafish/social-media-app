@@ -22,12 +22,16 @@ import {
   Input, 
   Button,
   Avatar,
+  Alert,
+  AlertTitle,
+  AlertIcon
 } from '@chakra-ui/react'
 
 export default function Profile() {
 
   const router = useRouter();
   const { profile } = router.query;
+  const [valid, setValid] = useState(true)
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -87,6 +91,7 @@ export default function Profile() {
   }
 
   async function changePicture(){
+    if(file){
     uploadString(storageRef, file, 'data_url').then((snapshot) => {
       console.log('done');
     })
@@ -109,6 +114,13 @@ export default function Profile() {
   .catch((error) => {
     // Handle any errors
   });
+}
+else {
+  setValid(false)
+  setTimeout(() => {
+    setValid(true)
+  }, 4000);
+}
     
   }
 
@@ -121,8 +133,20 @@ export default function Profile() {
           </Head>
         <Header user={user}>
           <Button onClick={signOut}>Sign Out</Button>
-        </Header>
+        </Header>        
         <div className="flex flex-col items-center justify-center mt-5 gap-2">
+        {!valid && (
+          <Alert
+            status="error"
+            position="absolute"
+            top="20px"
+            width="fit-content"
+            rounded="4px"
+          >
+            <AlertIcon />
+            <AlertTitle>Choose an Image!</AlertTitle>
+          </Alert>
+        )}
         <div className="w-full mt-2 p-2">
             <Link href='/'>
               <Image src={arrow} alt='back' className="self-start"/>
@@ -150,7 +174,7 @@ export default function Profile() {
           <ModalHeader>Change Profile Picture</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-              <Input type="file" onChange={handleChange}/>
+          <input type="file" onChange={handleChange}/>
           </ModalBody>
 
           <ModalFooter>

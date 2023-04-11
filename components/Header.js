@@ -59,11 +59,8 @@ function Header({children}) {
           <Avatar
           src={user.photoURL}
           />
-              <h1>{user.displayName}</h1>
+              <h1 className='font-semibold'>{user.displayName}</h1>
         </div>
-    <Link href="/">
-        <h1 className={`${poppins.className} text-[25px]`}>Home</h1>
-      </Link>
       </div>     
 
       <Button onClick={signOut}  _hover={{backgroundColor:"red.500"}}>
