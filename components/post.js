@@ -9,6 +9,14 @@ import {
   Heading,
   Text,
   Button,
+  Input,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import { getDatabase, ref, set, remove, get, child, onValue } from "firebase/database";
@@ -32,11 +40,13 @@ export default function Post({
   photo,
   image,
   postDate,
+  uid
 }) {
   const app = firebase_app;
   const auth = getAuth(app);
   const db = getDatabase(app);
   const [likedPosts, setLikedPosts] = useState([]);
+  const [delToggle, setDelToggle] = useState(false)
   const router = useRouter();
 
   function postClick() {
@@ -89,13 +99,15 @@ export default function Post({
       text: text,
       id: id,
       likes: ++likes,
-      photo:photo,
+      photo:photo || '',
       date:postDate,
-      image:image
+      image:image,
+      uid:uid
       });
       set(ref(db, `/users/${auth.currentUser.uid}`), {
         name: user.displayName,
-        liked: userLiked + ',' + id
+        liked: userLiked + ',' + id,
+        image:auth.currentUser.photoURL || ''
       });
     } 
     else {
@@ -112,13 +124,14 @@ export default function Post({
         likes: --likes,
         photo:photo,
         date:postDate,
-        image:image
+        image:image,
+        uid:uid
         });
         set(ref(db, `/users/${auth.currentUser.uid}`), {
           name: user.displayName,
-          liked: liked.toString()
+          liked: liked.toString(),
+          image:auth.currentUser.photoURL || ''
         });
-      console.log('already liked')
     }
   }
 
@@ -139,7 +152,8 @@ export default function Post({
         for (let i = 0; i < values.length; i++){
          set(ref(db, `/users/${keys[i]}`), {
            name: values[i].name,
-           liked: liked.toString()
+           liked: liked.toString(),
+           image:values[i].image || ''
          });    
         }
       } else {
@@ -147,9 +161,8 @@ export default function Post({
       }
     }).catch((error) => {
       console.error(error);
-    });       
-      
-    
+    });  
+    setDelToggle(false)
   }
 
 
@@ -159,8 +172,15 @@ export default function Post({
       >
         <CardHeader>
           <Flex spacing="4">
-            <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
-              <Avatar name="Segun Adebayo" src={photo} />
+            <Flex 
+              flex="1" 
+              gap="4" 
+              alignItems="center" 
+              flexWrap="wrap"
+              cursor='pointer'
+              onClick={() => router.push(`/profile/${uid}`)}
+              >
+              <Avatar src={photo} />
             
               <Box>
                 <Heading size="sm">{name}</Heading>
@@ -170,14 +190,34 @@ export default function Post({
             {user.displayName === name && !post && (
             <Image
               variant="ghost"
-              onClick={delPost}
-              id={id}
+              onClick={() => setDelToggle(true)}              
               src={bin}
               style={{ width: "30px" }}
               alt="delete-button"
               className="cursor-pointer"
             />
           )}
+          <Modal 
+          isOpen={delToggle} 
+          onClose={() => setDelToggle(false)}
+          isCentered
+          >
+        <ModalOverlay />
+        <ModalContent 
+          className="top-0 flex flex-col items-center"
+          >
+          <ModalHeader>Delete Post</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+              <h1>Are you Sure you want to delete the Post?</h1>
+          </ModalBody>
+
+          <ModalFooter className="flex items-center justify-center gap-5">
+            <Button variant='solid' bgColor={'red.400'} id={id} onClick={delPost}>Yes</Button>
+            <Button variant='solid' bgColor={'green.300'} onClick={() => setDelToggle(false)}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
           </Flex>
         </CardHeader>
         <CardBody

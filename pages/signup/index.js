@@ -75,7 +75,8 @@ function index() {
         console.log(auth.currentUser.uid)
         await set(ref(db, `/users/${auth.currentUser.uid}`), {
           name: user.user_name,
-          liked: ''
+          liked: '',
+          image:auth.currentUser.photoURL || ''
         });
       } catch (err) {
         setValid({
@@ -130,7 +131,8 @@ function index() {
       if (!snapshot.exists()) {
         set(ref(db, `/users/${result.user.uid}`), {
           name: result.user.displayName,
-          liked: ''
+          liked: '',
+          image:auth.currentUser.photoURL || ''
         });
       }
     }).catch((error) => {

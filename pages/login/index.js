@@ -97,7 +97,8 @@ function index() {
       if (!snapshot.exists()) {
         set(ref(db, `/users/${result.user.uid}`), {
           name: result.user.displayName,
-          liked: ''
+          liked: '',
+          image:result.user.photoURL || ""
         });
       }
     }).catch((error) => {
