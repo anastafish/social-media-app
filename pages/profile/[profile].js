@@ -174,7 +174,11 @@ else {
           <ModalHeader>Change Profile Picture</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-          <input type="file" className="border border-black rounded-md" onChange={handleChange}/>
+          <input 
+            type="file" 
+            accept=".png, .jpg, .jpeg"
+            className="border border-black rounded-md" 
+            onChange={handleChange}/>
           </ModalBody>
 
           <ModalFooter>

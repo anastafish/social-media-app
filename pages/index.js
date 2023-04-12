@@ -166,6 +166,7 @@ export default function Home() {
               <input
                type="file"
                id="file"
+               accept=".png, .jpg, .jpeg"
                onChange={handleFile}
                className="absolute bottom-1 right-1 w-[30px] h-[30px] z-10 opacity-0 cursor-pointer"
                />
