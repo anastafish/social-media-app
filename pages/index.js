@@ -82,7 +82,8 @@ export default function Home() {
             user.photoURL,
           date:date.toLocaleString(),
           image:file,
-          uid:auth.currentUser.uid
+          uid:auth.currentUser.uid,
+          comments:''
           });
           setFile('');
     } 
@@ -96,7 +97,8 @@ export default function Home() {
           user.photoURL,
         date:date.toLocaleString(),
         image:file,
-        uid:auth.currentUser.uid
+        uid:auth.currentUser.uid,
+        comments:''
         });
         setFile('');
     }
@@ -200,6 +202,7 @@ export default function Home() {
                 image={post.image}
                 post={false}
                 uid={post.uid}
+                postComment={post.comments}
               />
             );
           })

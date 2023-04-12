@@ -7,9 +7,6 @@ import { useRouter } from 'next/router';
 import logout from '../images/logout.svg'
 import Image from 'next/image';
 import Link from 'next/link';
-import {Poppins} from 'next/font/google'
-
-const poppins = Poppins({ subsets: ['latin'], weight:'700' })
 
 
 function Header({children}) {
@@ -46,7 +43,7 @@ function Header({children}) {
   }
 
   return (
-    <div className='flex items-center w-full p-5
+    <div className='flex items-center w-full p-3
      justify-between border-b-[2px] border-gray-400
      border-opacity-20
      '>

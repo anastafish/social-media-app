@@ -76,7 +76,6 @@ export default function Profile() {
   const db = getDatabase(app);
   const auth = getAuth(app);
   const storage = getStorage(app,'gs://social-media-app-753cb.appspot.com');
-  const storageRef = sRef(storage, `users/${user.uid}` || '');
 
 
   function handleChange(e){
@@ -92,8 +91,9 @@ export default function Profile() {
 
   async function changePicture(){
     if(file){
-    uploadString(storageRef, file, 'data_url').then((snapshot) => {
-      console.log('done');
+      const storageRef = sRef(storage, `users/${user.uid}` || '')
+      uploadString(storageRef, file, 'data_url').then((snapshot) => {
+        console.log('done');
     })
 
     getDownloadURL(sRef(storage, `users/${user.uid}`))
@@ -170,11 +170,11 @@ else {
                   isCentered
                   >
         <ModalOverlay />
-        <ModalContent className="flex flex-col items-center">
+        <ModalContent className="flex flex-col items-center gap-3">
           <ModalHeader>Change Profile Picture</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-          <input type="file" onChange={handleChange}/>
+          <input type="file" className="border border-black rounded-md" onChange={handleChange}/>
           </ModalBody>
 
           <ModalFooter>

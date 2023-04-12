@@ -3,7 +3,7 @@ import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect, useRef, useState } from "react";
 import firebase_app from "@/firebase/config";
 import { useRouter } from "next/router";
-import { ChakraProvider, Textarea, Input, Button } from "@chakra-ui/react";
+import { ChakraProvider, Textarea, Input, Button, Avatar, Card, CardBody, Text } from "@chakra-ui/react";
 import Post from "@/components/post";
 import arrow from '../../images/arrow.svg'
 import Image from "next/image";
@@ -75,9 +75,23 @@ export default function Home() {
               postDate={post.date}
               image={post.image}
               post={true}
+              uid={post.uid}
+              postComment={post.comments}
               />
             )}
           </div>
+          {post && post.comments.map(comment => {
+            return  (         
+              <Card width={'35%'} height={'10%'}>
+                <CardBody className="flex gap-5 justify-between items-center">
+                <div className="flex flex-col items-center">
+                <Avatar src={comment.image}/>
+                <h1>{comment.user}</h1>
+              </div>
+                  <Text className="overflow-y-hidden">{comment.comment}</Text>
+                </CardBody>
+              </Card>)
+          })}
         </div>
     </ChakraProvider>
   );
