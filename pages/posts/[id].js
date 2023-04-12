@@ -80,11 +80,14 @@ export default function Home() {
               />
             )}
           </div>
-          {post && post.comments.map(comment => {
+          {post && Array.isArray(post.comments) && post.comments.map(comment => {
             return  (         
               <Card width={'35%'} height={'10%'}>
                 <CardBody className="flex gap-5 justify-between items-center">
-                <div className="flex flex-col items-center">
+                <div 
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => router.push(`/profile/${comment.uid}`)}
+                  >
                 <Avatar src={comment.image}/>
                 <h1>{comment.user}</h1>
               </div>

@@ -19,7 +19,7 @@ import {
   ModalCloseButton,
   Alert,
   AlertIcon,
-  AlertTitle 
+  AlertTitle,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import {
@@ -41,6 +41,21 @@ import commentIcon from "../images/comment.svg";
 import bin from "../images/delete.svg";
 import filled_like from "../images/filled_like.svg";
 import { useRouter } from "next/router";
+import {
+  EmailShareButton,
+  EmailIcon,
+  FacebookShareButton,
+  FacebookIcon,
+  TwitterIcon,
+  WhatsappIcon,
+  TwitterShareButton,
+  WhatsappShareButton,
+  TelegramIcon,
+  LinkedinIcon,
+  LinkedinShareButton,
+  TelegramShareButton,
+} from "react-share";
+import copy from "../images/copy.svg";
 
 export default function Post({
   name,
@@ -59,6 +74,7 @@ export default function Post({
   const db = getDatabase(app);
   const [likedPosts, setLikedPosts] = useState([]);
   const [delToggle, setDelToggle] = useState(false);
+  const [shareToggle, setShareToggle] = useState(false);
   const router = useRouter();
 
   function postClick() {
@@ -69,7 +85,7 @@ export default function Post({
   const [posts, setPosts] = useState([]);
   const [userLiked, setUserLiked] = useState("");
   const [comment, setComment] = useState("");
-  const [valid, setValid] = useState(true)
+  const [valid, setValid] = useState(true);
 
   useEffect(() => {
     const postsDb = ref(db, "/posts");
@@ -149,33 +165,33 @@ export default function Post({
   }
 
   function newComment() {
-    if (comment){
-    set(ref(db, `/posts/${id}`), {
-      name: name,
-      text: text,
-      id: id,
-      likes: likes,
-      photo: photo,
-      date: postDate,
-      image: image,
-      uid: uid,
-      comments: {
-        ...postComment,
-        [Object.keys(postComment).length]: {
-          comment: comment,
-          user: user.displayName,
-          image: user.photoURL,
+    if (comment) {
+      set(ref(db, `/posts/${id}`), {
+        name: name,
+        text: text,
+        id: id,
+        likes: likes,
+        photo: photo,
+        date: postDate,
+        image: image,
+        uid: uid,
+        comments: {
+          ...postComment,
+          [Object.keys(postComment).length]: {
+            comment: comment,
+            user: user.displayName,
+            image: user.photoURL,
+            uid: user.uid,
+          },
         },
-      },
-    });
-    setComment("");
-  }
-  else {
-    setValid(false)
-    setTimeout(() => {
-      setValid(true)
-    }, 4000);
-  }
+      });
+      setComment("");
+    } else {
+      setValid(false);
+      setTimeout(() => {
+        setValid(true);
+      }, 4000);
+    }
   }
 
   function handleChange(e) {
@@ -217,7 +233,8 @@ export default function Post({
 
   return (
     <Card maxW="md" width="100%">
-      <div>,
+      <div>
+        ,
         <CardHeader>
           <Flex spacing="4">
             <Flex
@@ -277,7 +294,7 @@ export default function Post({
               </ModalContent>
             </Modal>
           </Flex>
-        </CardHeader>        
+        </CardHeader>
         <CardBody
           onClick={!post ? postClick : undefined}
           className={`${!post ? "cursor-pointer" : ""} flex flex-col gap-5`}
@@ -320,17 +337,78 @@ export default function Post({
           <div
             className={`heart ${
               userLiked.split(",").includes(id) ? "is-active" : ""
-            }`}
+            } select-none`}
             onClick={like}
           ></div>
           <Image
             src={commentIcon}
-            style={{ width: "30px"}}
-            className={`${!post && 'cursor-pointer'}`}
+            style={{ width: "30px" }}
+            className={`${!post && "cursor-pointer"} select-none`}
             alt="comment-button"
             onClick={!post ? postClick : undefined}
           />
-          <Image src={share} style={{ width: "30px" }} alt="share-button" />
+          <Image
+            onClick={() => setShareToggle(true)}
+            src={share}
+            style={{ width: "30px" }}
+            alt="share-button"
+            className="select-none"
+          />
+          <Modal
+            isOpen={shareToggle}
+            onClose={() => setShareToggle(false)}
+            isCentered
+          >
+            <ModalOverlay />
+            <ModalContent className="top-0 flex flex-col items-center">
+              <ModalHeader>Share Post</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody className="flex">
+                <FacebookShareButton
+                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                >
+                  <FacebookIcon />
+                </FacebookShareButton>
+
+                <WhatsappShareButton
+                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                >
+                  <WhatsappIcon />
+                </WhatsappShareButton>
+
+                <TwitterShareButton
+                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                >
+                  <TwitterIcon />
+                </TwitterShareButton>
+
+                <LinkedinShareButton
+                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                >
+                  <LinkedinIcon />
+                </LinkedinShareButton>
+
+                <TelegramShareButton
+                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                >
+                  <TelegramIcon />
+                </TelegramShareButton>
+
+                <div className="border-[2px] flex items-center justify-center border-black">
+                  <Image
+                    src={copy}
+                    alt="copy_icon"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `https://social-media-app-fslc.vercel.app/posts/${id}`
+                      );
+                    }}
+                    className="cursor-pointer"
+                  />
+                </div>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
         </div>
         <div className="flex w-full items-center justify-between mr-5 ml-[2.8rem]">
           <h1 className="text-[18px]">{likes}</h1>
