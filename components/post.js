@@ -68,6 +68,7 @@ export default function Post({
   postDate,
   uid,
   postComment,
+  shares
 }) {
   const app = firebase_app;
   const auth = getAuth(app);
@@ -85,7 +86,7 @@ export default function Post({
   const [posts, setPosts] = useState([]);
   const [userLiked, setUserLiked] = useState("");
   const [comment, setComment] = useState("");
-  const [valid, setValid] = useState(true);
+  const [valid, setValid] = useState({isValid:true, msg:''});
 
   useEffect(() => {
     const postsDb = ref(db, "/posts");
@@ -106,7 +107,6 @@ export default function Post({
           if (snapshot.val()) {
             setUserLiked(snapshot.val().liked);
           } else {
-            console.log("err");
           }
         });
         // ...
@@ -131,6 +131,7 @@ export default function Post({
         image: image,
         uid: uid,
         comments: postComment,
+        shares:shares
       });
       set(ref(db, `/users/${auth.currentUser.uid}`), {
         name: user.displayName,
@@ -155,6 +156,7 @@ export default function Post({
         image: image,
         uid: uid,
         comments: postComment,
+        shares:shares
       });
       set(ref(db, `/users/${auth.currentUser.uid}`), {
         name: user.displayName,
@@ -184,14 +186,35 @@ export default function Post({
             uid: user.uid,
           },
         },
+        shares:shares
       });
       setComment("");
-    } else {
-      setValid(false);
+      setValid({isValid:false, msg:'Comment Sent Successfully!'});
       setTimeout(() => {
-        setValid(true);
+        setValid({isValid:true, msg:''});
+      }, 4000);
+
+    } else {
+      setValid({isValid:false, msg:'Type something first!'});
+      setTimeout(() => {
+        setValid({isValid:true, msg:''});
       }, 4000);
     }
+  }
+
+  function shareClick(){
+    set(ref(db, `/posts/${id}`), {
+      name: name,
+      text: text,
+      id: id,
+      likes: likes,
+      photo: photo,
+      date: postDate,
+      image: image,
+      uid: uid,
+      comments: postComment,
+      shares:++shares
+    });
   }
 
   function handleChange(e) {
@@ -221,8 +244,6 @@ export default function Post({
               image: values[i].image || "",
             });
           }
-        } else {
-          console.log("No data available");
         }
       })
       .catch((error) => {
@@ -319,16 +340,16 @@ export default function Post({
           },
         }}
       >
-        {!valid && (
+        {!valid.isValid && (
           <Alert
-            status="error"
+            status={`${valid.msg === 'Comment Sent Successfully!'  ? 'success' : 'error'}`}
             position="absolute"
             bottom="100px"
             width="fit-content"
             rounded="4px"
           >
             <AlertIcon />
-            <AlertTitle>Type Somthing before commenting</AlertTitle>
+            <AlertTitle>{valid.msg}</AlertTitle>
           </Alert>
         )}
         <div className="flex w-full justify-between mr-5 h-fit">
@@ -346,7 +367,10 @@ export default function Post({
             onClick={!post ? postClick : undefined}
           />
           <Image
-            onClick={() => setShareToggle(true)}
+            onClick={() => {
+              setShareToggle(true)
+              shareClick()
+            }}
             src={share}
             style={{ width: "30px" }}
             alt="share-button"
@@ -411,17 +435,17 @@ export default function Post({
         <div className="flex w-full items-center justify-between mr-5 ml-[2.8rem]">
           <h1 className="text-[18px]">{likes}</h1>
           <h1 className="text-[18px]">{postComment.length}</h1>
-          <h1 className="text-[18px]">0</h1>
+          <h1 className="text-[18px]">{shares}</h1>
         </div>
-        <div className="flex">
+        <div className="flex items-center mt-3">
           <Input
             placeholder="Type a comment"
-            className="mt-3"
+            className=""
             value={comment}
             onChange={handleChange}
             onKeyDown={(e) => e.key === "Enter" && newComment()}
           />
-          {/* <Button onClick={}></Button> */}
+          <Button onClick={newComment}>Comment</Button>
         </div>
       </CardFooter>
       {post && <h1 className={`text-[15px] p-[1rem]`}>{postDate}</h1>}

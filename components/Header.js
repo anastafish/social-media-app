@@ -19,12 +19,9 @@ function Header({children}) {
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
-        console.log("signed in");
         setUser(user);
-        console.log(user)
         // ...
       } else {
-        console.log("not signed in");
         router.push('/login')
         // User is signed out
         // ...
@@ -36,7 +33,6 @@ function Header({children}) {
     auth
       .signOut()
       .then(() => {
-        console.log("singout");
         router.push('/login');
       })
       .catch("failed");

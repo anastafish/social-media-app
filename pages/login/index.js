@@ -33,12 +33,10 @@ function index() {
       auth.onAuthStateChanged((user) => {
         if (user) {
           const uid = user.uid;
-          console.log("signed in");
           setUser(user);
           router.push('/')
           // ...
         } else {
-          console.log("not signed in");
           // User is signed out
           // ...
         }
@@ -58,7 +56,6 @@ function index() {
         .then((userCredential) => {
             // Signed in 
             const user = userCredential.user;
-            console.log('signed in')
             // ...
         })
         // if password and email doesn't exist

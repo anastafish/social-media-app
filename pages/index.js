@@ -35,12 +35,9 @@ export default function Home() {
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
-        console.log("signed in");
         setUser(user);
-        console.log(user)
         // ...
       } else {
-        console.log("not signed in");
         router.push('/login')
         // User is signed out
         // ...
@@ -83,7 +80,8 @@ export default function Home() {
           date:date.toLocaleString(),
           image:file,
           uid:auth.currentUser.uid,
-          comments:''
+          comments:'',
+          shares:0
           });
           setFile('');
     } 
@@ -98,7 +96,8 @@ export default function Home() {
         date:date.toLocaleString(),
         image:file,
         uid:auth.currentUser.uid,
-        comments:''
+        comments:'',
+        shares:0
         });
         setFile('');
     }
@@ -124,7 +123,7 @@ export default function Home() {
 
   return (
     <ChakraProvider>
-      <Head>
+        <Head>
             <title>Home</title>
           </Head>
       <Header user={user}>
@@ -204,6 +203,7 @@ export default function Home() {
                 post={false}
                 uid={post.uid}
                 postComment={post.comments}
+                shares={post.shares}
               />
             );
           })

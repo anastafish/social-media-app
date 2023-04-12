@@ -29,11 +29,9 @@ export default function Home() {
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
-        console.log("signed in");
         setUser(user);
         // ...
       } else {
-        console.log("not signed in");
         router.push('/login');
         // User is signed out
         // ...
@@ -60,7 +58,7 @@ export default function Home() {
         <div className="flex flex-col gap-5 items-center justify-center relative">
           <div className="w-full mt-2 p-2">
             <Link href='/' className="sm:cursor-pointer cursor-default">
-              <Image src={arrow} alt='back' className="self-start "/>
+              <Image priority src={arrow} alt='back' className="self-start "/>
             </Link>
           </div>
           <div
@@ -81,11 +79,14 @@ export default function Home() {
               post={true}
               uid={post.uid}
               postComment={post.comments}
+              shares={post.shares}
+              key={post.date}
               />
             )}
-            {post && Array.isArray(post.comments) && post.comments.map(comment => {
+            <h1>Comments</h1>
+            {post && Array.isArray(post.comments) && post.comments.map((comment,index) => {
             return  (         
-              <Card>
+              <Card key={index}>
                 <CardBody className="flex gap-5 justify-between items-center">
                 <div 
                   className="flex flex-col items-center cursor-pointer"

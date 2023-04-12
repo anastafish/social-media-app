@@ -38,15 +38,10 @@ function index() {
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
-        console.log("signed in");
         setUser(user);
         router.push('/')
         // ...
-      } else {
-        console.log("not signed in");
-        // User is signed out
-        // ...
-      }
+      } 
     });
   }, []);
 
@@ -74,7 +69,6 @@ function index() {
         await updateProfile(auth.currentUser, {
           displayName: user.user_name,
         }).catch((err) => console.log(err));
-        console.log(auth.currentUser.uid)
         
         // create a user copy in the database to store the profile image and the liked posts
         await set(ref(db, `/users/${auth.currentUser.uid}`), {

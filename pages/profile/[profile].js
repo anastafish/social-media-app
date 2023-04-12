@@ -38,11 +38,9 @@ export default function Profile() {
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
-        console.log("signed in");
         setUser(user);
         // ...
       } else {
-        console.log("not signed in");
         router.push('/login');
         // User is signed out
         // ...
@@ -58,9 +56,6 @@ export default function Profile() {
       .then((snapshot) => {
         if (snapshot.exists()) {
           setUserProfile(snapshot.val())  
-          console.log(snapshot.val().image)
-        } else {
-          console.log("No data available");
         }
       })
       .catch((error) => {
@@ -96,9 +91,6 @@ export default function Profile() {
     // uploads the selected image to firebase storage to use as profile pic
     if(file){
       const storageRef = sRef(storage, `users/${user.uid}` || '')
-      uploadString(storageRef, file, 'data_url').then((snapshot) => {
-        console.log('done');
-    })
 
     // gets the picture from firebase storage to set it as profile picture
     getDownloadURL(sRef(storage, `users/${user.uid}`))
@@ -152,7 +144,7 @@ else {
         )}
         <div className="w-full mt-2 p-2">
             <Link href='/' className="sm:cursor-pointer cursor-default">
-              <Image src={arrow} alt='back' className="self-start"/>
+              <Image priority src={arrow} alt='back' className="self-start"/>
             </Link>
           </div>
           <Avatar 
