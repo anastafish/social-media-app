@@ -34,6 +34,7 @@ function index() {
   const router = useRouter()
 
   useEffect(() => {
+    // check if user is logged in or not 
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
@@ -50,6 +51,7 @@ function index() {
   }, []);
 
   async function newUser() {
+    // create new user if all the fileds are filled and the passwords match
     if (
       !validate.email &&
       !validate.user_name &&
@@ -73,6 +75,8 @@ function index() {
           displayName: user.user_name,
         }).catch((err) => console.log(err));
         console.log(auth.currentUser.uid)
+        
+        // create a user copy in the database to store the profile image and the liked posts
         await set(ref(db, `/users/${auth.currentUser.uid}`), {
           name: user.user_name,
           liked: '',
@@ -118,6 +122,7 @@ function index() {
   }
 
   function googleLogin(){
+    // create new user using google account
     signInWithPopup(auth, provider)
 .then((result) => {
   // This gives you a Google Access Token. You can use it to access the Google API.
@@ -127,6 +132,7 @@ function index() {
   const user = result.user;
 
   const dbRef = ref(getDatabase());
+  // create a user copy in the database to store the profile image and the liked posts
     get(child(dbRef, `/users/${user.uid}`)).then((snapshot) => {
       if (!snapshot.exists()) {
         set(ref(db, `/users/${result.user.uid}`), {

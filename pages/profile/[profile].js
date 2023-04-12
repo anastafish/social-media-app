@@ -34,6 +34,7 @@ export default function Profile() {
   const [valid, setValid] = useState(true)
 
   useEffect(() => {
+    // check if user is logged in or not
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
@@ -51,6 +52,7 @@ export default function Profile() {
 
 
   useEffect(() => {
+    // gets the specific user from the database by the uid from the url 
     const dbRef = ref(getDatabase());
     get(child(dbRef, `/users/${profile}`))
       .then((snapshot) => {
@@ -79,6 +81,7 @@ export default function Profile() {
 
 
   function handleChange(e){
+    // convert the file to base64 url
     const file = e.target.files[0]
     const reader = new FileReader()     
     reader.addEventListener('load', () => {
@@ -90,18 +93,21 @@ export default function Profile() {
   }
 
   async function changePicture(){
+    // uploads the selected image to firebase storage to use as profile pic
     if(file){
       const storageRef = sRef(storage, `users/${user.uid}` || '')
       uploadString(storageRef, file, 'data_url').then((snapshot) => {
         console.log('done');
     })
 
+    // gets the picture from firebase storage to set it as profile picture
     getDownloadURL(sRef(storage, `users/${user.uid}`))
   .then((url) => {
     updateProfile(auth.currentUser, {
       photoURL: url,
     }).catch((err) => console.log(err));
 
+    // change the user's image proparty to the new image    
     set(ref(db, `/users/${profile}`), {
       name: auth.currentUser.displayName,
       image:url,
@@ -120,11 +126,8 @@ else {
   setTimeout(() => {
     setValid(true)
   }, 4000);
-}
-    
-  }
-
-  
+}    
+  }  
 
   return (
     <ChakraProvider>
@@ -148,7 +151,7 @@ else {
           </Alert>
         )}
         <div className="w-full mt-2 p-2">
-            <Link href='/'>
+            <Link href='/' className="sm:cursor-pointer cursor-default">
               <Image src={arrow} alt='back' className="self-start"/>
             </Link>
           </div>

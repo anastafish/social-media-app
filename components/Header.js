@@ -54,7 +54,7 @@ function Header({children}) {
           className='flex flex-col items-center justify-center gap-1 cursor-pointer'
           onClick={() => router.push(`/profile/${auth.currentUser.uid}`)}>
           <Avatar
-          src={user.photoURL}
+            src={user.photoURL}
           />
               <h1 className='font-semibold'>{user.displayName}</h1>
         </div>

@@ -1,9 +1,12 @@
+*:focus {
+  outline: none;
+}
+
 .heart {
     width: 80px;
     height: 100px;
     background: url("https://cssanimation.rocks/images/posts/steps/heart.png") no-repeat;
     background-position: 0 0;
-    cursor: pointer;
     transition: background-position 1s steps(28);
     transition-duration: 0s;
 }

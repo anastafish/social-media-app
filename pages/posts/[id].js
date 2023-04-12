@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Head from "next/head";
+import { avatarClasses } from "@mui/material";
 
 export default function Home() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function Home() {
   const auth = getAuth(app);
 
   useEffect(() => {
+
+    // check if user is logged in or not
     auth.onAuthStateChanged((user) => {
       if (user) {
         const uid = user.uid;
@@ -39,6 +42,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // get the specific post from the database depending on the url query
     const starCountRef = ref(db, `/posts/${id}`);
     onValue(starCountRef, (snapshot) => {
       setPost(snapshot.val());
@@ -55,8 +59,8 @@ export default function Home() {
         </Header>
         <div className="flex flex-col gap-5 items-center justify-center relative">
           <div className="w-full mt-2 p-2">
-            <Link href='/'>
-              <Image src={arrow} alt='back' className="self-start"/>
+            <Link href='/' className="sm:cursor-pointer cursor-default">
+              <Image src={arrow} alt='back' className="self-start "/>
             </Link>
           </div>
           <div
@@ -79,10 +83,9 @@ export default function Home() {
               postComment={post.comments}
               />
             )}
-          </div>
-          {post && Array.isArray(post.comments) && post.comments.map(comment => {
+            {post && Array.isArray(post.comments) && post.comments.map(comment => {
             return  (         
-              <Card width={'35%'} height={'10%'}>
+              <Card>
                 <CardBody className="flex gap-5 justify-between items-center">
                 <div 
                   className="flex flex-col items-center cursor-pointer"
@@ -95,6 +98,8 @@ export default function Home() {
                 </CardBody>
               </Card>)
           })}
+          </div>
+          
         </div>
     </ChakraProvider>
   );

@@ -28,6 +28,8 @@ function index() {
     const [valid, setValid]  = useState({isValid:true, message:''})
   
     useEffect(() => {
+      // Check if user is logged in or not 
+
       auth.onAuthStateChanged((user) => {
         if (user) {
           const uid = user.uid;
@@ -44,12 +46,14 @@ function index() {
     }, []);
 
     function login(){
+      // check if user has entered email and password
       if (
         !validate.email &&
         !validate.password &&
         user.email &&
         user.password
       ) {
+        // Login user with Email And Password method
         signInWithEmailAndPassword(auth, user.email, user.password)
         .then((userCredential) => {
             // Signed in 
@@ -57,6 +61,7 @@ function index() {
             console.log('signed in')
             // ...
         })
+        // if password and email doesn't exist
         .catch((error) => {
           setValid({
             isValid:false,
@@ -71,6 +76,7 @@ function index() {
         });
       }      
       else{
+        // if user hasn't filled all or some of the fields
         setValid({
           isValid:false,
           message:'Fill all the required fields!'
@@ -84,6 +90,7 @@ function index() {
       }  
     }  
 
+    // login using google account
     function googleLogin(){
       signInWithPopup(auth, provider)
   .then((result) => {
@@ -95,6 +102,7 @@ function index() {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `/users/${user.uid}`)).then((snapshot) => {
       if (!snapshot.exists()) {
+        // create a user copy in the database to store the profile image and the liked posts
         set(ref(db, `/users/${result.user.uid}`), {
           name: result.user.displayName,
           liked: '',

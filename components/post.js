@@ -234,7 +234,6 @@ export default function Post({
   return (
     <Card maxW="md" width="100%">
       <div>
-        ,
         <CardHeader>
           <Flex spacing="4">
             <Flex
@@ -245,8 +244,7 @@ export default function Post({
               cursor="pointer"
               onClick={() => router.push(`/profile/${uid}`)}
             >
-              <Avatar src={photo} />
-
+              <Avatar src={photo} name={name}/>
               <Box>
                 <Heading size="sm">{name}</Heading>
               </Box>
@@ -258,7 +256,7 @@ export default function Post({
                 src={bin}
                 style={{ width: "30px" }}
                 alt="delete-button"
-                className="cursor-pointer"
+                className="sm:cursor-pointer cursor-default"
               />
             )}
             <Modal
@@ -337,13 +335,13 @@ export default function Post({
           <div
             className={`heart ${
               userLiked.split(",").includes(id) ? "is-active" : ""
-            } select-none`}
+            } sm:cursor-pointer cursor-default`}
             onClick={like}
           ></div>
           <Image
             src={commentIcon}
             style={{ width: "30px" }}
-            className={`${!post && "cursor-pointer"} select-none`}
+            className={`${!post && "sm:cursor-pointer cursor-default"}`}
             alt="comment-button"
             onClick={!post ? postClick : undefined}
           />
@@ -352,7 +350,7 @@ export default function Post({
             src={share}
             style={{ width: "30px" }}
             alt="share-button"
-            className="select-none"
+            className="sm:cursor-pointer cursor-default"
           />
           <Modal
             isOpen={shareToggle}
