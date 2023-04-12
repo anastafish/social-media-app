@@ -7,7 +7,7 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
-  Button
+  Button,
 } from "@chakra-ui/react";
 import Post from "@/components/post";
 import firebase_app from "@/firebase/config";
@@ -15,21 +15,20 @@ import Header from "@/components/Header";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Image from "next/image";
-import gallery from '../images/gallery.svg' 
+import gallery from "../images/gallery.svg";
 import ClipLoader from "react-spinners/ClipLoader";
-import uniqid from 'uniqid';
-
+import uniqid from "uniqid";
 
 export default function Home() {
   const [posts, setPosts] = useState(undefined);
   const [text, setText] = useState("");
   const [user, setUser] = useState({});
   const [valid, setValid] = useState(true);
-  const [file, setFile] = useState('')
+  const [file, setFile] = useState("");
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -38,7 +37,7 @@ export default function Home() {
         setUser(user);
         // ...
       } else {
-        router.push('/login')
+        router.push("/login");
         // User is signed out
         // ...
       }
@@ -53,55 +52,50 @@ export default function Home() {
     const starCountRef = ref(db, "/posts");
     onValue(starCountRef, (snapshot) => {
       if (snapshot.val()) {
-        const values = Object.values(snapshot.val()).slice(0).reverse()
+        const values = Object.values(snapshot.val()).slice(0).reverse();
         setPosts(() => {
-          return [...values].sort((a,b) => {
-            a.date < b.date ? 1 : -1 
-          })
-        })
+          return [...values].sort((a, b) => {
+            a.date < b.date ? 1 : -1;
+          });
+        });
+      } else {
+        setPosts(null);
       }
-      else {
-        setPosts(null)
-      }
-    });    
+    });
   }, []);
 
   function newPost() {
-    const date = new Date()    
-    const id = uniqid()
+    const date = new Date();
+    const id = uniqid();
     if (text.trim()) {
-        set(ref(db, `/posts/${id}`), {
-          name: user.displayName,
-          text: text,
-          id: id,
-          likes: 0,
-          photo:
-            user.photoURL,
-          date:date.toLocaleString(),
-          image:file,
-          uid:auth.currentUser.uid,
-          comments:'',
-          shares:0
-          });
-          setFile('');
-    } 
-    else if (file){
       set(ref(db, `/posts/${id}`), {
         name: user.displayName,
-        text: '',
+        text: text,
         id: id,
         likes: 0,
-        photo:
-          user.photoURL,
-        date:date.toLocaleString(),
-        image:file,
-        uid:auth.currentUser.uid,
-        comments:'',
-        shares:0
-        });
-        setFile('');
-    }
-    else {
+        photo: user.photoURL,
+        date: date.toLocaleString(),
+        image: file,
+        uid: auth.currentUser.uid,
+        comments: "",
+        shares: 0,
+      });
+      setFile("");
+    } else if (file) {
+      set(ref(db, `/posts/${id}`), {
+        name: user.displayName,
+        text: "",
+        id: id,
+        likes: 0,
+        photo: user.photoURL,
+        date: date.toLocaleString(),
+        image: file,
+        uid: auth.currentUser.uid,
+        comments: "",
+        shares: 0,
+      });
+      setFile("");
+    } else {
       setValid(false);
       setTimeout(() => {
         setValid(true);
@@ -109,25 +103,24 @@ export default function Home() {
     }
     setText("");
   }
-  
-  function handleFile(e){
-    const file = e.target.files[0]
-    const reader = new FileReader()     
-    reader.addEventListener('load', () => {
-      setFile(reader.result)
-    })
-    if(file){
-      reader.readAsDataURL(file)
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      setFile(reader.result);
+    });
+    if (file) {
+      reader.readAsDataURL(file);
     }
   }
 
   return (
     <ChakraProvider>
-        <Head>
-            <title>Home</title>
-          </Head>
-      <Header user={user}>
-      </Header>
+      <Head>
+        <title>Anas's App</title>
+      </Head>
+      <Header user={user}></Header>
       <div
         className="
       flex flex-col items-center justify-center
@@ -145,7 +138,7 @@ export default function Home() {
             <AlertIcon />
             <AlertTitle>Type Somthing before posting</AlertTitle>
           </Alert>
-        )} 
+        )}
         <div className="flex flex-col gap-2 items-center w-[60%] h-[5rem] relative">
           <Textarea
             placeholder="Type Something"
@@ -162,33 +155,34 @@ export default function Home() {
             resize="none"
             focusBorderColor="transparent"
           />
-              <input
-               type="file"
-               id="file"
-               accept=".png, .jpg, .jpeg"
-               onChange={handleFile}
-               className="absolute bottom-1 right-1 w-[30px] h-[30px] z-10 opacity-0 cursor-pointer"
-               />
-                <Image
-                src={gallery}
-                className="cursor-pointer absolute bottom-1
+          <input
+            type="file"
+            id="file"
+            accept=".png, .jpg, .jpeg"
+            onChange={handleFile}
+            className="absolute bottom-1 right-1 w-[30px] h-[30px] z-10 opacity-0 cursor-pointer"
+          />
+          <Image
+            src={gallery}
+            className="cursor-pointer absolute bottom-1
                 right-1 w-[30px] h-[40px] z-[9]"
-                alt='choose_image'
-                />
-                <Button 
-                onClick={newPost}
-                className="p-2"
-                >Post</Button>
+            alt="choose_image"
+          />
+          <Button onClick={newPost} className="p-2">
+            Post
+          </Button>
         </div>
-        {file && <Image
-                 src={file}
-                alt="post_image"
-                width={20}
-                height={20}
-                className="w-[10rem] h-[10rem] rounded-md"
-                 />}
+        {file && (
+          <Image
+            src={file}
+            alt="post_image"
+            width={20}
+            height={20}
+            className="w-[10rem] h-[10rem] rounded-md"
+          />
+        )}
 
-        {posts && (
+        {posts &&
           posts.map((post, index) => {
             return (
               <Post
@@ -206,11 +200,9 @@ export default function Home() {
                 shares={post.shares}
               />
             );
-          })
-        ) 
-          }
-          {posts === undefined && <ClipLoader size={75}/>}
-          {posts === null && <h1>No Posts</h1>}
+          })}
+        {posts === undefined && <ClipLoader size={75} />}
+        {posts === null && <h1>No Posts</h1>}
       </div>
     </ChakraProvider>
   );

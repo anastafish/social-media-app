@@ -1,14 +1,24 @@
-import { getDatabase, ref, set, get, child} from "firebase/database";
-import { getAuth, onAuthStateChanged, signOut, updateProfile} from "firebase/auth";
+import { getDatabase, ref, set, get, child } from "firebase/database";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+  updateProfile,
+} from "firebase/auth";
 import { useEffect, useRef, useState } from "react";
 import firebase_app from "@/firebase/config";
 import { useRouter } from "next/router";
-import arrow from '../../images/arrow.svg'
+import arrow from "../../images/arrow.svg";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Head from "next/head";
-import { getStorage, ref as sRef, uploadString, getDownloadURL} from "firebase/storage";
+import {
+  getStorage,
+  ref as sRef,
+  uploadString,
+  getDownloadURL,
+} from "firebase/storage";
 import {
   Modal,
   ModalOverlay,
@@ -17,21 +27,20 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  ChakraProvider, 
-  Textarea, 
-  Input, 
+  ChakraProvider,
+  Textarea,
+  Input,
   Button,
   Avatar,
   Alert,
   AlertTitle,
-  AlertIcon
-} from '@chakra-ui/react'
+  AlertIcon,
+} from "@chakra-ui/react";
 
 export default function Profile() {
-
   const router = useRouter();
   const { profile } = router.query;
-  const [valid, setValid] = useState(true)
+  const [valid, setValid] = useState(true);
 
   useEffect(() => {
     // check if user is logged in or not
@@ -41,95 +50,91 @@ export default function Profile() {
         setUser(user);
         // ...
       } else {
-        router.push('/login');
+        router.push("/login");
         // User is signed out
         // ...
       }
     });
-  }  ,[])
-
+  }, []);
 
   useEffect(() => {
-    // gets the specific user from the database by the uid from the url 
+    // gets the specific user from the database by the uid from the url
     const dbRef = ref(getDatabase());
     get(child(dbRef, `/users/${profile}`))
       .then((snapshot) => {
         if (snapshot.exists()) {
-          setUserProfile(snapshot.val())  
+          setUserProfile(snapshot.val());
         }
       })
       .catch((error) => {
         console.error(error);
       });
-
   }, [profile]);
 
   const [user, setUser] = useState({});
-  const [userProfile, setUserProfile] = useState({})
-  const [file, setFile] = useState('')
-  const [isOpen, setIsOpen] = useState(false)
+  const [userProfile, setUserProfile] = useState({});
+  const [file, setFile] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);
-  const storage = getStorage(app,'gs://social-media-app-753cb.appspot.com');
+  const storage = getStorage(app, "gs://social-media-app-753cb.appspot.com");
 
-
-  function handleChange(e){
+  function handleChange(e) {
     // convert the file to base64 url
-    const file = e.target.files[0]
-    const reader = new FileReader()     
-    reader.addEventListener('load', () => {
-      setFile(reader.result)
-    })
-    if(file){
-      reader.readAsDataURL(file)
-    } 
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      setFile(reader.result);
+    });
+    if (file) {
+      reader.readAsDataURL(file);
+    }
   }
 
-  async function changePicture(){
+  async function changePicture() {
     // uploads the selected image to firebase storage to use as profile pic
-    if(file){
-      const storageRef = sRef(storage, `users/${user.uid}` || '')
+    if (file) {
+      const storageRef = sRef(storage, `users/${user.uid}` || "");
 
-    // gets the picture from firebase storage to set it as profile picture
-    getDownloadURL(sRef(storage, `users/${user.uid}`))
-  .then((url) => {
-    updateProfile(auth.currentUser, {
-      photoURL: url,
-    }).catch((err) => console.log(err));
+      // gets the picture from firebase storage to set it as profile picture
+      getDownloadURL(sRef(storage, `users/${user.uid}`))
+        .then((url) => {
+          updateProfile(auth.currentUser, {
+            photoURL: url,
+          }).catch((err) => console.log(err));
 
-    // change the user's image proparty to the new image    
-    set(ref(db, `/users/${profile}`), {
-      name: auth.currentUser.displayName,
-      image:url,
-      liked:userProfile.liked
-      });
+          // change the user's image proparty to the new image
+          set(ref(db, `/users/${profile}`), {
+            name: auth.currentUser.displayName,
+            image: url,
+            liked: userProfile.liked,
+          });
 
-    setIsOpen(false)  
-    router.reload()
-  })
-  .catch((error) => {
-    // Handle any errors
-  });
-}
-else {
-  setValid(false)
-  setTimeout(() => {
-    setValid(true)
-  }, 4000);
-}    
-  }  
+          setIsOpen(false);
+          router.reload();
+        })
+        .catch((error) => {
+          // Handle any errors
+        });
+    } else {
+      setValid(false);
+      setTimeout(() => {
+        setValid(true);
+      }, 4000);
+    }
+  }
 
   return (
     <ChakraProvider>
       <Head>
-            <title>profile</title>
-          </Head>
-        <Header user={user}>
-          <Button onClick={signOut}>Sign Out</Button>
-        </Header>        
-        <div className="flex flex-col items-center justify-center mt-5 gap-2">
+        <title>profile</title>
+      </Head>
+      <Header user={user}>
+        <Button onClick={signOut}>Sign Out</Button>
+      </Header>
+      <div className="flex flex-col items-center justify-center mt-5 gap-2">
         {!valid && (
           <Alert
             status="error"
@@ -143,47 +148,51 @@ else {
           </Alert>
         )}
         <div className="w-full mt-2 p-2">
-            <Link href='/' className="sm:cursor-pointer cursor-default">
-              <Image priority src={arrow} alt='back' className="self-start"/>
-            </Link>
-          </div>
-          <Avatar 
-          src={userProfile.image} 
-          width={20} 
-          height={20} 
-          className="w-[100px] h-[100px] rounded-full"
-          alt='profile_image'
-          />
-            {userProfile.name}
-            {user.displayName === userProfile.name && 
-              <div>
-                
-                <Button onClick={() => setIsOpen(true)}>Change Profile Picture</Button>
-                <Modal 
-                  isOpen={isOpen} 
-                  onClose={() => setIsOpen(false)}
-                  isCentered
-                  >
-        <ModalOverlay />
-        <ModalContent className="flex flex-col items-center gap-3">
-          <ModalHeader>Change Profile Picture</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-          <input 
-            type="file" 
-            accept=".png, .jpg, .jpeg"
-            className="border border-black rounded-md" 
-            onChange={handleChange}/>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button variant='solid' bgColor={'green.300'} onClick={changePicture}>Apply</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-                </div>
-            }
+          <Link href="/" className="sm:cursor-pointer cursor-default">
+            <Image priority src={arrow} alt="back" className="self-start" />
+          </Link>
         </div>
+        <Avatar
+          src={userProfile.image}
+          width={20}
+          height={20}
+          className="w-[100px] h-[100px] rounded-full"
+          alt="profile_image"
+        />
+        {userProfile.name}
+        {user.displayName === userProfile.name && (
+          <div>
+            <Button onClick={() => setIsOpen(true)}>
+              Change Profile Picture
+            </Button>
+            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered>
+              <ModalOverlay />
+              <ModalContent className="flex flex-col items-center gap-3">
+                <ModalHeader>Change Profile Picture</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <input
+                    type="file"
+                    accept=".png, .jpg, .jpeg"
+                    className="border border-black rounded-md"
+                    onChange={handleChange}
+                  />
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button
+                    variant="solid"
+                    bgColor={"green.300"}
+                    onClick={changePicture}
+                  >
+                    Apply
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          </div>
+        )}
+      </div>
     </ChakraProvider>
   );
 }

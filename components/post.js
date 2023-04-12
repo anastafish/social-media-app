@@ -68,7 +68,7 @@ export default function Post({
   postDate,
   uid,
   postComment,
-  shares
+  shares,
 }) {
   const app = firebase_app;
   const auth = getAuth(app);
@@ -86,7 +86,7 @@ export default function Post({
   const [posts, setPosts] = useState([]);
   const [userLiked, setUserLiked] = useState("");
   const [comment, setComment] = useState("");
-  const [valid, setValid] = useState({isValid:true, msg:''});
+  const [valid, setValid] = useState({ isValid: true, msg: "" });
 
   useEffect(() => {
     const postsDb = ref(db, "/posts");
@@ -131,7 +131,7 @@ export default function Post({
         image: image,
         uid: uid,
         comments: postComment,
-        shares:shares
+        shares: shares,
       });
       set(ref(db, `/users/${auth.currentUser.uid}`), {
         name: user.displayName,
@@ -156,7 +156,7 @@ export default function Post({
         image: image,
         uid: uid,
         comments: postComment,
-        shares:shares
+        shares: shares,
       });
       set(ref(db, `/users/${auth.currentUser.uid}`), {
         name: user.displayName,
@@ -186,23 +186,22 @@ export default function Post({
             uid: user.uid,
           },
         },
-        shares:shares
+        shares: shares,
       });
       setComment("");
-      setValid({isValid:false, msg:'Comment Sent Successfully!'});
+      setValid({ isValid: false, msg: "Comment Sent Successfully!" });
       setTimeout(() => {
-        setValid({isValid:true, msg:''});
+        setValid({ isValid: true, msg: "" });
       }, 4000);
-
     } else {
-      setValid({isValid:false, msg:'Type something first!'});
+      setValid({ isValid: false, msg: "Type something first!" });
       setTimeout(() => {
-        setValid({isValid:true, msg:''});
+        setValid({ isValid: true, msg: "" });
       }, 4000);
     }
   }
 
-  function shareClick(){
+  function shareClick() {
     set(ref(db, `/posts/${id}`), {
       name: name,
       text: text,
@@ -213,7 +212,7 @@ export default function Post({
       image: image,
       uid: uid,
       comments: postComment,
-      shares:++shares
+      shares: ++shares,
     });
   }
 
@@ -265,7 +264,7 @@ export default function Post({
               cursor="pointer"
               onClick={() => router.push(`/profile/${uid}`)}
             >
-              <Avatar src={photo} name={name}/>
+              <Avatar src={photo} name={name} />
               <Box>
                 <Heading size="sm">{name}</Heading>
               </Box>
@@ -342,7 +341,9 @@ export default function Post({
       >
         {!valid.isValid && (
           <Alert
-            status={`${valid.msg === 'Comment Sent Successfully!'  ? 'success' : 'error'}`}
+            status={`${
+              valid.msg === "Comment Sent Successfully!" ? "success" : "error"
+            }`}
             position="absolute"
             bottom="100px"
             width="fit-content"
@@ -368,8 +369,8 @@ export default function Post({
           />
           <Image
             onClick={() => {
-              setShareToggle(true)
-              shareClick()
+              setShareToggle(true);
+              shareClick();
             }}
             src={share}
             style={{ width: "30px" }}
