@@ -22,6 +22,7 @@ import google from "../../images/google.png";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import bg from '../../images/bg.jpg'
 
 function index() {
   const app = firebase_app;
@@ -160,6 +161,11 @@ function index() {
         <title>Login</title>
       </Head>
       <div className="flex flex-col items-center justify-center h-[100vh]">
+        <Image 
+          src={bg}
+          fill
+          style={{objectFit:'cover', objectPosition:'center'}}
+        />
         {!valid.isValid && (
           <Alert
             status="error"
@@ -196,7 +202,7 @@ function index() {
               />
               <FormErrorMessage>Password is required.</FormErrorMessage>
             </FormControl>
-            <Link href="signup">Don't have an account?</Link>
+            <Link href="signup" className="z-10 text-white">Don't have an account?</Link>
           </div>
           <Button onClick={login}>Login</Button>
           <Button className="flex gap-2" onClick={googleLogin}>

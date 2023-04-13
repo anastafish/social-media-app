@@ -1,6 +1,6 @@
 import { getDatabase, ref, onValue, set, remove } from "firebase/database";
 import { getAuth } from "firebase/auth";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useContext} from "react";
 import {
   ChakraProvider,
   Textarea,
@@ -18,6 +18,7 @@ import Image from "next/image";
 import gallery from "../images/gallery.svg";
 import ClipLoader from "react-spinners/ClipLoader";
 import uniqid from "uniqid";
+import { UserContext } from "./_app";
 
 export default function Home() {
   const [posts, setPosts] = useState(undefined);
@@ -25,6 +26,8 @@ export default function Home() {
   const [user, setUser] = useState({});
   const [valid, setValid] = useState(true);
   const [file, setFile] = useState("");
+  const [theme, setTheme] = useContext(UserContext)
+  console.log(theme)
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);
@@ -122,10 +125,10 @@ export default function Home() {
       </Head>
       <Header user={user}></Header>
       <div
-        className="
-      flex flex-col items-center justify-center
-      m-5 overflow-y-clip gap-16  
-      "
+        className={`
+      flex flex-col items-center justify-start
+      p-5 overflow-y-clip gap-16 ${!posts && 'h-[100vh]'} ${theme ? 'bg-[#4B5150]' : 'bg-[#CEDEDA]'}
+      `}
       >
         {!valid && (
           <Alert
@@ -141,6 +144,7 @@ export default function Home() {
         )}
         <div className="flex flex-col gap-2 items-center w-[60%] h-[5rem] relative">
           <Textarea
+          backgroundColor={theme ? 'gray.300' : 'gray.50'}
             placeholder="Type Something"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -151,7 +155,6 @@ export default function Home() {
             onChange={handleChange}
             value={text}
             variant="outline"
-            backgroundColor="gray.50"
             resize="none"
             focusBorderColor="transparent"
           />
@@ -168,7 +171,11 @@ export default function Home() {
                 right-1 w-[30px] h-[40px] z-[9]"
             alt="choose_image"
           />
-          <Button onClick={newPost} className="p-2">
+          <Button 
+            onClick={newPost} 
+            className="p-2"
+            backgroundColor={theme ? 'gray.300' : 'gray.50'}
+            >
             Post
           </Button>
         </div>
@@ -180,29 +187,28 @@ export default function Home() {
             height={20}
             className="w-[10rem] h-[10rem] rounded-md"
           />
-        )}
-
-        {posts &&
-          posts.map((post, index) => {
-            return (
-              <Post
-                name={post.name}
-                text={post.text}
-                key={index}
-                id={post.id}
-                likes={post.likes}
-                photo={post.photo}
-                postDate={post.date}
-                image={post.image}
-                post={false}
-                uid={post.uid}
-                postComment={post.comments}
-                shares={post.shares}
-              />
-            );
-          })}
-        {posts === undefined && <ClipLoader size={75} />}
-        {posts === null && <h1>No Posts</h1>}
+        )}           
+          {posts &&
+            posts.map((post, index) => {
+              return (
+                <Post
+                  name={post.name}
+                  text={post.text}
+                  key={index}
+                  id={post.id}
+                  likes={post.likes}
+                  photo={post.photo}
+                  postDate={post.date}
+                  image={post.image}
+                  post={false}
+                  uid={post.uid}
+                  postComment={post.comments}
+                  shares={post.shares}
+                />
+              );
+            })}
+          {posts === undefined && <ClipLoader size={75} />}
+          {posts === null && <h1>No Posts</h1>}
       </div>
     </ChakraProvider>
   );

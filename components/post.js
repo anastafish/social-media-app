@@ -32,7 +32,7 @@ import {
   onValue,
 } from "firebase/database";
 import { updateProfile } from "firebase/auth";
-import { useState, useEffect, createElement } from "react";
+import { useState, useEffect, useContext } from "react";
 import firebase_app from "@/firebase/config";
 import { getAuth } from "firebase/auth";
 import like_icon from "../images/like.svg";
@@ -56,6 +56,8 @@ import {
   TelegramShareButton,
 } from "react-share";
 import copy from "../images/copy.svg";
+import { UserContext } from "../pages/_app";
+
 
 export default function Post({
   name,
@@ -76,6 +78,7 @@ export default function Post({
   const [likedPosts, setLikedPosts] = useState([]);
   const [delToggle, setDelToggle] = useState(false);
   const [shareToggle, setShareToggle] = useState(false);
+  const [theme, setTheme] = useContext(UserContext)
   const router = useRouter();
 
   function postClick() {
@@ -252,7 +255,7 @@ export default function Post({
   }
 
   return (
-    <Card maxW="md" width="100%">
+    <Card maxW="md" width="100%" backgroundColor={theme ? '#899391' : 'white'}>
       <div>
         <CardHeader>
           <Flex spacing="4">
@@ -445,8 +448,17 @@ export default function Post({
             value={comment}
             onChange={handleChange}
             onKeyDown={(e) => e.key === "Enter" && newComment()}
+            backgroundColor={theme ? 'gray.300' : 'gray.50'}
+            borderRightRadius='none'
           />
-          <Button onClick={newComment}>Comment</Button>
+          <Button 
+            onClick={newComment}
+            backgroundColor={theme ? 'gray.300' : 'gray.50'}
+            borderLeftRadius='none'
+            fontSize={13}
+            >
+              Comment
+              </Button>
         </div>
       </CardFooter>
       {post && <h1 className={`text-[15px] p-[1rem]`}>{postDate}</h1>}

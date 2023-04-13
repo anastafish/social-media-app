@@ -1,6 +1,6 @@
 import { getDatabase, ref, onValue, set, remove } from "firebase/database";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import firebase_app from "@/firebase/config";
 import { useRouter } from "next/router";
 import {
@@ -20,6 +20,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Head from "next/head";
 import { avatarClasses } from "@mui/material";
+import { UserContext } from "../_app";
+
 
 export default function Home() {
   const router = useRouter();
@@ -27,6 +29,8 @@ export default function Home() {
 
   const [post, setPost] = useState();
   const [user, setUser] = useState({});
+  const [theme, setTheme] = useContext(UserContext)
+
 
   const app = firebase_app;
   const db = getDatabase(app);
@@ -63,7 +67,9 @@ export default function Home() {
       <Header user={user}>
         <Button onClick={signOut}>Sign Out</Button>
       </Header>
-      <div className="flex flex-col gap-5 items-center justify-center relative">
+      <div className={`flex flex-col gap-5 items-center justify-center relative
+                      ${!post && 'h-[100vh]'} ${theme ? 'bg-[#4B5150]' : 'bg-[#CEDEDA]'}       
+      `}>
         <div className="w-full mt-2 p-2">
           <Link href="/" className="sm:cursor-pointer cursor-default">
             <Image priority src={arrow} alt="back" className="self-start " />
@@ -96,7 +102,7 @@ export default function Home() {
             Array.isArray(post.comments) &&
             post.comments.map((comment, index) => {
               return (
-                <Card key={index}>
+                <Card key={index} backgroundColor={theme ? '#899391' : 'white'}>
                   <CardBody className="flex gap-5 justify-between items-center">
                     <div
                       className="flex flex-col items-center cursor-pointer"
