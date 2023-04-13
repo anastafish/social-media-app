@@ -165,6 +165,7 @@ function index() {
           src={bg}
           fill
           style={{objectFit:'cover', objectPosition:'center'}}
+          alt="background_image"
         />
         {!valid.isValid && (
           <Alert

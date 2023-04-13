@@ -27,7 +27,6 @@ export default function Home() {
   const [valid, setValid] = useState(true);
   const [file, setFile] = useState("");
   const [theme, setTheme] = useContext(UserContext)
-  console.log(theme)
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);

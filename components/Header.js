@@ -63,7 +63,7 @@ function Header({ children }) {
       <div className="flex items-center gap-4">
         <div className="flex items-center justify-center gap-1">
           <Switch isChecked={theme} onChange={() => setTheme(prevState => !prevState)}/>
-          <Image src={dark} width='35'/>
+          <Image src={dark} width='35' alt="dark_mode_icon"/>
         </div>
         <Button onClick={signOut} _hover={{ backgroundColor: "red.500" }}>
           <div className="w-full flex justify-between items-center gap-3">
