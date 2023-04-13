@@ -37,6 +37,7 @@ import {
   AlertIcon,
 } from "@chakra-ui/react";
 import { UserContext } from "../_app";
+import { ClipLoader } from "react-spinners";
 
 
 export default function Profile() {
@@ -139,7 +140,11 @@ export default function Profile() {
         <Header user={user}>
           <Button onClick={signOut}>Sign Out</Button>
         </Header>
-        <div className={`flex flex-col items-center justify-start h-full  pt-5 gap-2
+
+        {!userProfile.name && <div className={`flex flex-col items-center justify-start h-full  pt-5 gap-2
+                          ${theme ? 'bg-[#4B5150]' : 'bg-[#CEDEDA]'}
+        `}><ClipLoader size={75} /></div>}
+        {userProfile.name && <div className={`flex flex-col items-center justify-start h-full  pt-5 gap-2
                           ${theme ? 'bg-[#4B5150]' : 'bg-[#CEDEDA]'}
         `}>
           {!valid && (
@@ -159,14 +164,18 @@ export default function Profile() {
               <Image priority src={arrow} alt="back" className="self-start" />
             </Link>
           </div>
-          <Avatar
-            src={userProfile.image}
-            width={20}
-            height={20}
-            className="w-[100px] h-[100px] rounded-full"
-            alt="profile_image"
-          />
-          {userProfile.name}
+          {!userProfile  && <ClipLoader size={75} />}
+
+          <div className="flex flex-col items-center">
+            <Avatar
+              src={userProfile.image}
+              width={20}
+              height={20}
+              className="w-[100px] h-[100px] rounded-full"
+              alt="profile_image"
+            />
+            {userProfile.name}
+          </div>
           {user.displayName === userProfile.name && (
             <div>
               <Button onClick={() => setIsOpen(true)}>
@@ -198,7 +207,7 @@ export default function Profile() {
               </Modal>
             </div>
           )}
-        </div>
+        </div>}
       </div>
     </ChakraProvider>
   );

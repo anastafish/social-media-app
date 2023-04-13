@@ -170,7 +170,7 @@ export default function Post({
   }
 
   function newComment() {
-    if (comment) {
+    if (comment.trim()) {
       set(ref(db, `/posts/${id}`), {
         name: name,
         text: text,
@@ -197,6 +197,7 @@ export default function Post({
         setValid({ isValid: true, msg: "" });
       }, 4000);
     } else {
+      setComment("")
       setValid({ isValid: false, msg: "Type something first!" });
       setTimeout(() => {
         setValid({ isValid: true, msg: "" });
@@ -334,6 +335,7 @@ export default function Post({
       </div>
       <CardFooter
         justify="center"
+        gap={0}
         alignItems="center"
         flexWrap="wrap"
         sx={{
@@ -351,35 +353,44 @@ export default function Post({
             bottom="100px"
             width="fit-content"
             rounded="4px"
+            zIndex={10}
           >
             <AlertIcon />
             <AlertTitle>{valid.msg}</AlertTitle>
           </Alert>
         )}
-        <div className="flex w-full justify-between mr-5 h-fit">
-          <div
-            className={`heart ${
-              userLiked.split(",").includes(id) ? "is-active" : ""
-            } sm:cursor-pointer cursor-default`}
-            onClick={like}
-          ></div>
-          <Image
-            src={commentIcon}
-            style={{ width: "30px" }}
-            className={`${!post && "sm:cursor-pointer cursor-default"}`}
-            alt="comment-button"
-            onClick={!post ? postClick : undefined}
-          />
-          <Image
-            onClick={() => {
-              setShareToggle(true);
-              shareClick();
-            }}
-            src={share}
-            style={{ width: "30px" }}
-            alt="share-button"
-            className="sm:cursor-pointer cursor-default"
-          />
+        <div className="flex flex-col w-full justify-between mr-5 h-fit relative">
+          <div className="flex items-center w-full justify-between ">
+            <div
+              className={`heart ${
+                userLiked.split(",").includes(id) ? "is-active" : ""
+              } sm:cursor-pointer cursor-default`}
+              onClick={like}
+            ></div>
+            <Image
+              src={commentIcon}
+              style={{ width: "30px" }}
+              className={`${!post && "sm:cursor-pointer cursor-default"}`}
+              alt="comment-button"
+              onClick={!post ? postClick : undefined}
+            />
+            <Image
+              onClick={() => {
+                setShareToggle(true);
+                shareClick();
+              }}
+              src={share}
+              style={{ width: "30px" }}
+              alt="share-button"
+              className="sm:cursor-pointer cursor-default"
+            />
+          </div>
+          <div className="flex w-full items-center justify-between 
+          absolute pr-11 ml-[2.8rem] bottom-0 ">
+          <h1 className="text-[18px]">{likes}</h1>
+          <h1 className="text-[18px]">{postComment.length}</h1>
+          <h1 className="text-[18px] mr-1">{shares}</h1>
+        </div>
           <Modal
             isOpen={shareToggle}
             onClose={() => setShareToggle(false)}
@@ -435,12 +446,7 @@ export default function Post({
               </ModalBody>
             </ModalContent>
           </Modal>
-        </div>
-        <div className="flex w-full items-center justify-between mr-5 ml-[2.8rem]">
-          <h1 className="text-[18px]">{likes}</h1>
-          <h1 className="text-[18px]">{postComment.length}</h1>
-          <h1 className="text-[18px]">{shares}</h1>
-        </div>
+        </div>        
         <div className="flex items-center mt-3">
           <Input
             placeholder="Type a comment"

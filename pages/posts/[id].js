@@ -21,6 +21,7 @@ import Header from "@/components/Header";
 import Head from "next/head";
 import { avatarClasses } from "@mui/material";
 import { UserContext } from "../_app";
+import { ClipLoader } from "react-spinners";
 
 
 export default function Home() {
@@ -69,7 +70,7 @@ export default function Home() {
       </Header>
       <div className={`flex flex-col gap-5 items-center justify-center relative
                       ${!post && 'h-[100vh]'} ${theme ? 'bg-[#4B5150]' : 'bg-[#CEDEDA]'}       
-      `}>
+                        sm:p-0 p-5`}>
         <div className="w-full mt-2 p-2">
           <Link href="/" className="sm:cursor-pointer cursor-default">
             <Image priority src={arrow} alt="back" className="self-start " />
@@ -81,6 +82,8 @@ export default function Home() {
             m-5 overflow-y-clip gap-4 w-full
             "
         >
+          {!post && <ClipLoader size={75} />}
+
           {post && (
             <Post
               name={post.name}
@@ -97,7 +100,7 @@ export default function Home() {
               key={post.date}
             />
           )}
-          <h1>Comments</h1>
+          {post && <h1>Comments</h1>}
           {post &&
             Array.isArray(post.comments) &&
             post.comments.map((comment, index) => {
