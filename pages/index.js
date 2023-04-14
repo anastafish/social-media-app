@@ -29,6 +29,7 @@ export default function Home() {
   const [file, setFile] = useState("");
   const [theme, setTheme] = useContext(UserContext)
   const [lastDate, setLastDate] = useState('')
+  const [morePosts, setMorePosts] = useState(false)
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);
@@ -72,7 +73,11 @@ export default function Home() {
         const newPosts = Object.values(snapshot.val()).reverse() 
         setPosts(prevPost => [...prevPost, ...newPosts])
         setLastDate(newPosts[newPosts.length -1].date)
+        setMorePosts(true)
       } 
+      else{
+        setMorePosts(false)
+      }
     });
   }
 
@@ -230,6 +235,8 @@ export default function Home() {
             })}
           {posts === undefined && <ClipLoader size={75} />}
           {posts === null && <h1>No Posts</h1>}
+            {morePosts && <Button onClick={getMorePosts}>Load More</Button> }
+            {posts !== undefined && !morePosts &&  <h1>You have reached the End</h1>}
       </div>
     </ChakraProvider>
   );
