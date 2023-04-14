@@ -60,6 +60,7 @@ export default function Home() {
         const newPosts = Object.values(snapshot.val()).reverse() 
         setPosts(newPosts)
         setLastDate(newPosts[newPosts.length -1].date)
+        setMorePosts(true)
       } else {
         setPosts(null);
       }
