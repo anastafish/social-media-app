@@ -192,15 +192,15 @@ export default function Post({
         shares: shares,
       });
       setComment("");
-      setValid({ isValid: false, msg: "Comment Sent Successfully!" });
+      setValid({ isValid: false, msg: "Comment Sent Successfully!", type:'success'});
       setTimeout(() => {
-        setValid({ isValid: true, msg: "" });
+        setValid({ isValid: true, msg: "", type:''});
       }, 4000);
     } else {
       setComment("")
-      setValid({ isValid: false, msg: "Type something first!" });
+      setValid({ isValid: false, msg: "Type something first!",type:'error'});
       setTimeout(() => {
-        setValid({ isValid: true, msg: "" });
+        setValid({ isValid: true, msg: "", type:''});
       }, 4000);
     }
   }
@@ -222,6 +222,13 @@ export default function Post({
 
   function handleChange(e) {
     setComment(e.target.value);
+  }
+
+  function copied(){
+    setValid({ isValid: false, msg: "Copied to Clipboard", type:'success'});
+      setTimeout(() => {
+        setValid({ isValid: true, msg: "", type:''});
+      }, 4000);
   }
 
   async function delPost(e) {
@@ -346,9 +353,7 @@ export default function Post({
       >
         {!valid.isValid && (
           <Alert
-            status={`${
-              valid.msg === "Comment Sent Successfully!" ? "success" : "error"
-            }`}
+            status={valid.type}
             position="absolute"
             bottom="100px"
             width="fit-content"
@@ -419,12 +424,6 @@ export default function Post({
                   <TwitterIcon />
                 </TwitterShareButton>
 
-                <LinkedinShareButton
-                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
-                >
-                  <LinkedinIcon />
-                </LinkedinShareButton>
-
                 <TelegramShareButton
                   url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
                 >
@@ -439,7 +438,9 @@ export default function Post({
                       navigator.clipboard.writeText(
                         `https://social-media-app-fslc.vercel.app/posts/${id}`
                       );
-                    }}
+                      copied()
+                    }
+                  }
                     className="cursor-pointer"
                   />
                 </div>
