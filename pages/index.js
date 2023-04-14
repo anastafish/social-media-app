@@ -1,4 +1,4 @@
-import { getDatabase, ref, onValue, set, remove } from "firebase/database";
+import { getDatabase, ref, onValue, set, query, startAt, orderByChild, limitToFirst, limitToLast, startAfter, endAt, endBefore } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState, useContext} from "react";
 import {
@@ -19,6 +19,7 @@ import gallery from "../images/gallery.svg";
 import ClipLoader from "react-spinners/ClipLoader";
 import uniqid from "uniqid";
 import { UserContext } from "./_app";
+import InfiniteScroll from "react-infinite-scroller";
 
 export default function Home() {
   const [posts, setPosts] = useState(undefined);
@@ -27,6 +28,7 @@ export default function Home() {
   const [valid, setValid] = useState(true);
   const [file, setFile] = useState("");
   const [theme, setTheme] = useContext(UserContext)
+  const [lastDate, setLastDate] = useState('')
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);
@@ -50,20 +52,40 @@ export default function Home() {
     setText(e.target.value);
   }
 
-  useEffect(() => {
-    const starCountRef = ref(db, "/posts");
+  function getPosts(){
+    const starCountRef = query(ref(db, "/posts"), orderByChild('date'), limitToLast(5));
     onValue(starCountRef, (snapshot) => {
       if (snapshot.val()) {
-        const values = Object.values(snapshot.val()).slice(0).reverse();
-        setPosts(() => {
-          return [...values].sort((a, b) => {
-            a.date < b.date ? 1 : -1;
-          });
-        });
+        const newPosts = Object.values(snapshot.val()).reverse() 
+        setPosts(newPosts)
+        setLastDate(newPosts[newPosts.length -1].date)
       } else {
         setPosts(null);
       }
     });
+  }
+
+  function getMorePosts(){
+    const starCountRef = query(ref(db, "/posts"), orderByChild('date'), endBefore(lastDate), limitToLast(5));
+    onValue(starCountRef, (snapshot) => {
+      if (snapshot.val()) {        
+        const newPosts = Object.values(snapshot.val()).reverse() 
+        setPosts(prevPost => [...prevPost, ...newPosts])
+        setLastDate(newPosts[newPosts.length -1].date)
+      } 
+    });
+  }
+
+  useEffect(() => {
+    window.onscroll = () => {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+          getMorePosts()
+      }
+  };
+  })
+
+  useEffect(() => {        
+    getPosts()
   }, []);
 
   function newPost() {
@@ -190,20 +212,20 @@ export default function Home() {
           {posts &&
             posts.map((post, index) => {
               return (
-                <Post
-                  name={post.name}
-                  text={post.text}
-                  key={index}
-                  id={post.id}
-                  likes={post.likes}
-                  photo={post.photo}
-                  postDate={post.date}
-                  image={post.image}
-                  post={false}
-                  uid={post.uid}
-                  postComment={post.comments}
-                  shares={post.shares}
-                />
+                  <Post
+                    name={post.name}
+                    text={post.text}
+                    key={index}
+                    id={post.id}
+                    likes={post.likes}
+                    photo={post.photo}
+                    postDate={post.date}
+                    image={post.image}
+                    post={false}
+                    uid={post.uid}
+                    postComment={post.comments}
+                    shares={post.shares}
+                  />
               );
             })}
           {posts === undefined && <ClipLoader size={75} />}
