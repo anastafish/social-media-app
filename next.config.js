@@ -11,10 +11,10 @@ const nextConfig = {
       },
       {
         protocol:'https',
-        hostname:'m.media-amazon.com',
+        hostname:'firebasestorage.googleapis.com',
         port:'',
-        pathname:'/images/**'
-      }
+        pathname:'/v0/**'
+      },
     ],
   },
 }

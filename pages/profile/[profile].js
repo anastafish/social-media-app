@@ -115,6 +115,7 @@ export default function Profile() {
             name: auth.currentUser.displayName,
             image: url,
             liked: userProfile.liked,
+            messages:userProfile.messages
           });
 
           setIsOpen(false);
@@ -176,6 +177,8 @@ export default function Profile() {
             />
             {userProfile.name}
           </div>
+          {user.displayName !== userProfile.name && 
+          <Button onClick={() => router.push(`/messages/${profile}`)}>Message</Button>}
           {user.displayName === userProfile.name && (
             <div>
               <Button onClick={() => setIsOpen(true)}>

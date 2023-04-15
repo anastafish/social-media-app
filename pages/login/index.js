@@ -114,6 +114,7 @@ function index() {
                 name: result.user.displayName,
                 liked: "",
                 image: result.user.photoURL || "",
+                messages:""
               });
             }
           })

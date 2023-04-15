@@ -20,9 +20,6 @@
     transition-duration: 1s;
     background-position: -2800px 0;
 }
-body {
-    background: #000;
-}
 .placement {
     top: 50%;
     left: 50%;
@@ -51,4 +48,12 @@ body {
     border: 2px solid #535353;
     color: #000;
   }
+
+  .scroll {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+.scroll::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+}
   

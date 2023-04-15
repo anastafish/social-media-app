@@ -75,6 +75,7 @@ function index() {
           name: user.user_name,
           liked: "",
           image: auth.currentUser.photoURL || "",
+          messages:""
         });
       } catch (err) {
         setValid({
@@ -132,6 +133,7 @@ function index() {
                 name: result.user.displayName,
                 liked: "",
                 image: auth.currentUser.photoURL || "",
+                messages:""
               });
             }
           })

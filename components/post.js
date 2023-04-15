@@ -90,6 +90,7 @@ export default function Post({
   const [userLiked, setUserLiked] = useState("");
   const [comment, setComment] = useState("");
   const [valid, setValid] = useState({ isValid: true, msg: "" });
+  const [userProfile, setUserProfile] = useState({})
 
   useEffect(() => {
     const postsDb = ref(db, "/posts");
@@ -98,7 +99,18 @@ export default function Post({
         setPosts(Object.values(snapshot.val()).slice(0).reverse());
       }
     });
-  }, []);
+
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `/users/${user.uid}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          setUserProfile(snapshot.val());
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [user]);
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -140,6 +152,7 @@ export default function Post({
         name: user.displayName,
         liked: userLiked + "," + id,
         image: auth.currentUser.photoURL || "",
+        messages:userProfile.messages
       });
     } else {
       const liked = userLiked.split(",");
@@ -165,6 +178,7 @@ export default function Post({
         name: user.displayName,
         liked: liked.toString(),
         image: auth.currentUser.photoURL || "",
+        messages:userProfile.messages
       });
     }
   }
@@ -252,6 +266,7 @@ export default function Post({
               name: values[i].name,
               liked: liked.toString(),
               image: values[i].image || "",
+              messages:userProfile.messages
             });
           }
         }

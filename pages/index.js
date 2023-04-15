@@ -19,7 +19,6 @@ import gallery from "../images/gallery.svg";
 import ClipLoader from "react-spinners/ClipLoader";
 import uniqid from "uniqid";
 import { UserContext } from "./_app";
-import InfiniteScroll from "react-infinite-scroller";
 
 export default function Home() {
   const [posts, setPosts] = useState(undefined);

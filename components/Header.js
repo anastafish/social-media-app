@@ -59,6 +59,7 @@ function Header({ children }) {
           <h1 className="font-semibold">{user.displayName}</h1>
         </div>
       </div>
+      <Link href='/messages'>Messages</Link>
 
       <div className="flex items-center gap-4">
         <div className="flex items-center justify-center gap-1">
