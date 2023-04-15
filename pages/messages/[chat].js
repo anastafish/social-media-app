@@ -31,7 +31,7 @@ function Chat() {
   const [messages, setMessages] = useState([])
   const bottomRef = useRef(null);
   const [theme, setTheme] = useContext(UserContext)
-//   const [play] = useSound('/noti.mp3',{volume:0.1});
+  const [play] = useSound('/noti.mp3',{volume:0.5});
 
   
   const app = firebase_app;
@@ -64,7 +64,11 @@ function Chat() {
     const msgRef = query(ref(db, `/users/${chat}/messages/${user.uid}/message`), orderByChild('date'));
     onValue(msgRef, (snapshot) => {
       if (snapshot.val()) {
-        setMessages(Object.values(snapshot.val()))
+        const msgs = Object.values(snapshot.val())
+        setMessages(msgs)
+        if (msgs[msgs.length-1].name !== user.displayName){
+          play()
+        }
       } 
     });
   }, [user]);
