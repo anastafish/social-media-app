@@ -65,7 +65,9 @@ function Header({ children }) {
             src={chat} 
             width={40} 
             height={40} 
-            className='sm:w-[45px] w-[25px]'/>  
+            className='sm:w-[45px] w-[25px]'
+            alt="messages_icon"
+            />  
         <h1>Messages</h1>
       </div>
       </Link>

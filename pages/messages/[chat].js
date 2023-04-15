@@ -1,4 +1,4 @@
-import { getDatabase, ref, onValue, set, query, startAt, orderByChild, limitToFirst, limitToLast, startAfter, endAt, endBefore } from "firebase/database";
+import { getDatabase, ref, onValue, set, query, orderByChild, remove} from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState, useContext, useRef} from "react";
 import {
@@ -10,6 +10,13 @@ import {
   Button,
   Input,
   Avatar,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import Post from "@/components/post";
 import firebase_app from "@/firebase/config";
@@ -23,6 +30,7 @@ import arrow from '../../images/arrow.svg'
 import Link from "next/link";
 import useSound from 'use-sound';
 import send from '../../images/send.svg'
+import bin from '../../images/delete.svg'
 
 function Chat() {
 
@@ -32,6 +40,7 @@ function Chat() {
   const bottomRef = useRef(null);
   const [theme, setTheme] = useContext(UserContext)
   const [play] = useSound('/noti.mp3',{volume:0.5});
+  const [delToggle, setDelToggle] = useState(false);
 
   
   const app = firebase_app;
@@ -94,7 +103,8 @@ function Chat() {
             [Object.keys(friend.messages[uid].message).length]:{
                 text:msg,
                 date:date.toLocaleString(),
-                name:user.displayName
+                name:user.displayName,
+                id:Object.keys(friend.messages[uid].message).length
             }
         }
       });
@@ -106,7 +116,8 @@ function Chat() {
             [Object.keys(friend.messages[uid].message).length]:{
                 text:msg,
                 date:date.toLocaleString(),
-                name:user.displayName
+                name:user.displayName,
+                id:Object.keys(friend.messages[uid].message).length
             }
         }
       });
@@ -114,7 +125,6 @@ function Chat() {
 }
 else {
     if (msg){
-        console.log(user.uid)
         const date = new Date();
     set(ref(db, `users/${user.uid}/messages/${chat}`), {
         id:chat,
@@ -123,7 +133,8 @@ else {
             0:{
                 text:msg,
                 date:date.toLocaleString(),
-                name:user.displayName
+                name:user.displayName,
+                id:0
             }
         }
       });
@@ -134,7 +145,8 @@ else {
             0:{
                 text:msg,
                 date:date.toLocaleString(),
-                name:user.displayName
+                name:user.displayName,
+                id:0
             }
         }
       });
@@ -143,9 +155,16 @@ else {
  setMsg('')   
   }     
 
+  function delMsg(e){
+    remove(ref(db, `/users/${chat}/messages/${user.uid}/message/${e.target.id}`));
+    remove(ref(db, `/users/${user.uid}/messages/${chat}/message/${e.target.id}`));
+    setDelToggle(false)
+  }
+
   
   return (      
     <ChakraProvider>
+      
       <div className={`flex flex-col items-center justify-center h-[100vh] gap-2
                         ${theme ? 'bg-[#4B5150]' : 'bg-[#CEDEDA]'} pb-2
       `}>  
@@ -156,24 +175,22 @@ else {
               <Image priority src={arrow} alt="back" className="self-start" />
             </Link>
           </div>   
-        <Avatar src={friend.image} width={50} height={50} />
+        <Avatar src={friend.image} width={50} height={50} alt="friend_pic"/>
         <h1>{friend.name}</h1>
         </div>   
         <div className="flex flex-col items-center overflow-y-auto m-[4px]
-         p-[4px]  h-full gap-5 scroll
+         p-[4px]  h-full w-full gap-5 scroll
          overflow-x-hidden text-justify
          ">
-            {friend.messages && messages.map((msg, index) => {
+            {friend.messages ? messages.map((msg, index) => {
                 return <div key={index}
                 className={`${msg.name === user.displayName ? 'bg-green-300' : 'bg-gray-400'}
-                 p-3 rounded-md
+                 p-3 rounded-md relative
                  `}>
                     <h1 className="text-[20px] max-w-sm">{msg.text}</h1>
                     <h6 className="text-[10px]">{msg.date}</h6>
                 </div>
-            })}
-            {!friend.messages && <ClipLoader size={75} />}
-
+            }) : <h1>No messages</h1>}
             <div ref={bottomRef}></div>
         </div>
         <div className="flex flex-col items-center justify-center gap-3">
@@ -188,7 +205,7 @@ else {
                 onClick={sendMessage}
                 className='flex items-center justify-between bg-green-400 p-3 rounded-md'
                 >
-                  <Image src={send} width={25} height={25}/>
+                  <Image src={send} width={25} height={25} alt='send_msg_icon'/>
                     <h1>Send</h1>
                     </Button>
         </div>
