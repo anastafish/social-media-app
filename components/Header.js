@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Switch } from '@chakra-ui/react'
 import { UserContext } from "../pages/_app";
 import dark from '../images/dark.svg'
+import chat from '../images/chat.png'
 
 
 function Header({ children }) {
@@ -45,23 +46,34 @@ function Header({ children }) {
 
   return (
     <div
-      className={`flex items-center w-full p-3
+      className={`flex items-center w-full p-2
      justify-between border-b-[2px] border-gray-400
      border-opacity-20 ${theme ? 'bg-[#899391]' : 'bg-gray-100'}
      `}
     >
-      <div className="flex gap-7 items-center">
+      <div className="flex sm:gap-10 gap-3 items-center">
         <div
           className="flex flex-col items-center justify-center gap-1 cursor-pointer"
           onClick={() => router.push(`/profile/${auth.currentUser.uid}`)}
         >
           <Avatar src={user.photoURL} />
-          <h1 className="font-semibold">{user.displayName}</h1>
+          <h1 className="font-semibold text-center">{user.displayName}</h1>
         </div>
+        <Link href='/messages'>
+        <div className="flex flex-col gap-1 items-center">
+          <Image 
+            src={chat} 
+            width={40} 
+            height={40} 
+            className='sm:w-[45px] w-[25px]'/>  
+        <h1>Messages</h1>
       </div>
-      <Link href='/messages'>Messages</Link>
+      </Link>
+ 
+      </div>
+      
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center sm:gap-2 gap-0">
         <div className="flex items-center justify-center gap-1">
           <Switch isChecked={theme} onChange={() => setTheme(prevState => !prevState)}/>
           <Image src={dark} width='35' alt="dark_mode_icon"/>

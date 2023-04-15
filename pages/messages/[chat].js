@@ -21,6 +21,8 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { UserContext } from "../_app";
 import arrow from '../../images/arrow.svg'
 import Link from "next/link";
+import useSound from 'use-sound';
+import send from '../../images/send.svg'
 
 function Chat() {
 
@@ -29,6 +31,7 @@ function Chat() {
   const [messages, setMessages] = useState([])
   const bottomRef = useRef(null);
   const [theme, setTheme] = useContext(UserContext)
+//   const [play] = useSound('/noti.mp3',{volume:0.1});
 
   
   const app = firebase_app;
@@ -145,7 +148,7 @@ else {
       <Header user={user}/>      
       <div className="flex items-center justify-center gap-2">
       <div className="w-full mt-2 p-2 absolute bottom-0-0">
-            <Link href="/" className="sm:cursor-pointer cursor-default">
+            <Link href="/messages" className="sm:cursor-pointer cursor-default">
               <Image priority src={arrow} alt="back" className="self-start" />
             </Link>
           </div>   
@@ -165,6 +168,8 @@ else {
                     <h6 className="text-[10px]">{msg.date}</h6>
                 </div>
             })}
+            {!friend.messages && <ClipLoader size={75} />}
+
             <div ref={bottomRef}></div>
         </div>
         <div className="flex flex-col items-center justify-center gap-3">
@@ -177,9 +182,10 @@ else {
                 />
             <Button 
                 onClick={sendMessage}
-                className='bg-green-400 p-3 rounded-md'
+                className='flex items-center justify-between bg-green-400 p-3 rounded-md'
                 >
-                    Send
+                  <Image src={send} width={25} height={25}/>
+                    <h1>Send</h1>
                     </Button>
         </div>
       </div>

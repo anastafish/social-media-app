@@ -83,8 +83,12 @@ function Messages() {
       <div className={`flex flex-col items-center justify-start h-[100vh] gap-2
                        ${theme ? 'bg-[#4B5150]' : 'bg-[#CEDEDA]'}                 
       `}>
-        <Header user={user}/>         
-        <div className="flex flex-col gap-5 items-center justify-center">
+        <Header user={user}/>   
+           
+        <div className="flex flex-col gap-5 items-center justify-center relative w-full">
+        <Link href="/" className="sm:cursor-pointer absolute left-0 top-0 cursor-default">
+              <Image priority src={arrow} alt="back" className="self-start" />
+            </Link>   
             {allUsers.filter(friends => friends.id != user.uid).map(user => {
                 return (
                   <div

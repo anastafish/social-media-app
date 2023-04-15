@@ -26,6 +26,7 @@
     "react-share": "^4.4.1",
     "react-spinners": "^0.13.8",
     "uniqid": "^5.4.0",
+    "use-sound": "^4.0.1",
     "yup": "^1.0.2"
   },
   "devDependencies": {
