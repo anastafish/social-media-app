@@ -30,8 +30,7 @@ import arrow from '../../images/arrow.svg'
 import Link from "next/link";
 import useSound from 'use-sound';
 import send from '../../images/send.svg'
-import bin from '../../images/delete.svg'
-
+import gallery from '../../images/gallery.svg'
 function Chat() {
 
   const [user, setUser] = useState({});
@@ -47,7 +46,7 @@ function Chat() {
   const db = getDatabase(app);
   const auth = getAuth(app);
   const router = useRouter();
-  const [msg, setMsg] = useState('')
+  const [msg, setMsg] = useState({text:'', image:''})
   const { chat } = router.query
 
   useEffect(() => {
@@ -87,13 +86,16 @@ function Chat() {
 },[messages])
 
   function handleChange(e){
-    setMsg(e.target.value)
+    setMsg(prevState => ({
+      ...prevState,
+      [e.target.name]:e.target.value
+    }))
   }
 
-  function sendMessage(){    
+  function sendMessage(){
     const uid = user.uid
     if (Object.keys(friend.messages).includes(uid)){
-    if (msg){
+    if (msg.text || msg.image){
         const date = new Date();
     set(ref(db, `/users/${user.uid}/messages/${chat}`), {
         id:chat,
@@ -101,10 +103,11 @@ function Chat() {
         message:{
             ...friend.messages[uid].message,
             [Object.keys(friend.messages[uid].message).length]:{
-                text:msg,
+                text:msg.text,
                 date:date.toLocaleString(),
                 name:user.displayName,
-                id:Object.keys(friend.messages[uid].message).length
+                id:Object.keys(friend.messages[uid].message).length,
+                image:msg.image
             }
         }
       });
@@ -114,27 +117,29 @@ function Chat() {
         message:{
             ...friend.messages[uid].message,
             [Object.keys(friend.messages[uid].message).length]:{
-                text:msg,
+                text:msg.text,
                 date:date.toLocaleString(),
                 name:user.displayName,
-                id:Object.keys(friend.messages[uid].message).length
+                id:Object.keys(friend.messages[uid].message).length,
+                image:msg.image
             }
         }
       });
     }    
 }
 else {
-    if (msg){
+    if (msg.text || msg.image){
         const date = new Date();
     set(ref(db, `users/${user.uid}/messages/${chat}`), {
         id:chat,
         name:friend.name,
         message:{
             0:{
-                text:msg,
+                text:msg.text,
                 date:date.toLocaleString(),
                 name:user.displayName,
-                id:0
+                id:0,
+                image:msg.image
             }
         }
       });
@@ -143,24 +148,38 @@ else {
         name:user.displayName,
         message:{
             0:{
-                text:msg,
+                text:msg.text,
                 date:date.toLocaleString(),
                 name:user.displayName,
-                id:0
+                id:0,
+                image:msg.image
             }
         }
       });
     }     
 }
- setMsg('')   
+ setMsg({text:'', image:''})   
   }     
 
-  function delMsg(e){
-    remove(ref(db, `/users/${chat}/messages/${user.uid}/message/${e.target.id}`));
-    remove(ref(db, `/users/${user.uid}/messages/${chat}/message/${e.target.id}`));
-    setDelToggle(false)
-  }
+  // function delMsg(e){
+  //   remove(ref(db, `/users/${chat}/messages/${user.uid}/message/${e.target.id}`));
+  //   remove(ref(db, `/users/${user.uid}/messages/${chat}/message/${e.target.id}`));
+  //   setDelToggle(false)
+  // }
 
+  function handleFile(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      setMsg(prevState => ({
+        ...prevState,
+        [e.target.name]:reader.result
+      }));
+    });
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  }
   
   return (      
     <ChakraProvider>
@@ -187,20 +206,45 @@ else {
                 className={`${msg.name === user.displayName ? 'bg-green-300' : 'bg-gray-400'}
                  p-3 rounded-md relative
                  `}>
-                    <h1 className="text-[20px] max-w-sm">{msg.text}</h1>
+                    {msg.image && <Image 
+                      src={msg.image} 
+                      width={50} 
+                      height={50} 
+                      alt='photo'
+                      className="h-[18rem] w-[18rem]"
+                      />}
+                                          <h1 className="text-[20px] max-w-sm">{msg.text}</h1>
+
                     <h6 className="text-[10px]">{msg.date}</h6>
                 </div>
             }) : <h1>No messages</h1>}
             <div ref={bottomRef}></div>
         </div>
         <div className="flex flex-col items-center justify-center gap-3">
-            <Input
-                value={msg}
-                onChange={handleChange}
-                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                className='p-3 bg-slate-300 rounded-md'
-                placeholder='type a message'
-                />
+            <div className="flex flex-col gap-2 items-center relative">
+              <Input
+                  name="text"
+                  value={msg.text}
+                  onChange={handleChange}
+                  onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                  className='p-3 bg-slate-300 rounded-md'
+                  placeholder='type a message'
+                  />
+                  <input
+                  name="image"
+                type="file"
+                id="file"
+                accept=".png, .jpg, .jpeg"
+                onChange={handleFile}
+                className="absolute bottom-1 right-1 w-[30px] h-[30px] z-10 opacity-0 cursor-pointer"
+              />
+              <Image
+                src={gallery}
+                className="cursor-pointer absolute
+                    right-1 w-[30px] h-[40px] z-[9]"
+                alt="choose_image"
+              />
+            </div>
             <Button 
                 onClick={sendMessage}
                 className='flex items-center justify-between bg-green-400 p-3 rounded-md'
