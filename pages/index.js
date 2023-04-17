@@ -29,6 +29,7 @@ export default function Home() {
   const [theme, setTheme] = useContext(UserContext)
   const [lastDate, setLastDate] = useState('')
   const [morePosts, setMorePosts] = useState(false)
+  const [disabled, setDisabled] = useState(false)
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);
@@ -69,7 +70,7 @@ export default function Home() {
   function getMorePosts(){
     const starCountRef = query(ref(db, "/posts"), orderByChild('date'), endBefore(lastDate), limitToLast(5));
     onValue(starCountRef, (snapshot) => {
-      if (snapshot.val()) {        
+      if (snapshot.val()) { 
         const newPosts = Object.values(snapshot.val()).reverse() 
         setPosts(prevPost => [...prevPost, ...newPosts])
         setLastDate(newPosts[newPosts.length -1].date)
@@ -131,6 +132,10 @@ export default function Home() {
       }, 4000);
     }
     setText("");
+    setDisabled(true)
+    setTimeout(() => {
+      setDisabled(false)
+    }, 1500);
   }
 
   function handleFile(e) {
@@ -183,6 +188,7 @@ export default function Home() {
             variant="outline"
             resize="none"
             focusBorderColor="transparent"
+            disabled={disabled ? true : false}
           />
           <input
             type="file"

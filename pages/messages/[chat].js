@@ -9,7 +9,12 @@ import {
 } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState, useContext, useRef } from "react";
-import { ChakraProvider, Button, Input, Avatar } from "@chakra-ui/react";
+import {
+  ChakraProvider,
+  Button,
+  Input,
+  Avatar,
+} from "@chakra-ui/react";
 import firebase_app from "@/firebase/config";
 import Header from "@/components/Header";
 import { useRouter } from "next/router";
@@ -23,7 +28,7 @@ import useSound from "use-sound";
 import send from "../../images/send.svg";
 import gallery from "../../images/gallery.svg";
 import Message from "@/components/Message";
-
+import uniqid from "uniqid";
 
 function Chat() {
   const [user, setUser] = useState({});
@@ -32,9 +37,6 @@ function Chat() {
   const bottomRef = useRef(null);
   const [theme, setTheme] = useContext(UserContext);
   const [play] = useSound("/noti.mp3", { volume: 0.5 });
-  const [delToggle, setDelToggle] = useState(false);
-  const [id, setId] = useState("");
-
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);
@@ -90,36 +92,24 @@ function Chat() {
 
   function sendMessage() {
     const uid = user.uid;
+    const msgId = uniqid();
     if (Object.keys(friend.messages).includes(uid)) {
+      const oldMsgs = friend.messages[uid].message;
       if (msg.text || msg.image) {
         const date = new Date();
-        set(ref(db, `/users/${user.uid}/messages/${chat}`), {
-          id: chat,
-          name: friend.name,
-          message: {
-            ...friend.messages[uid].message,
-            [Object.keys(friend.messages[uid].message).length]: {
-              text: msg.text,
-              date: date.toLocaleString(),
-              name: user.displayName,
-              id: Object.keys(friend.messages[uid].message).length,
-              image: msg.image,
-            },
-          },
-        });
-        set(ref(db, `/users/${chat}/messages/${user.uid}`), {
-          id: user.uid,
+        set(ref(db, `/users/${user.uid}/messages/${chat}/message/${msgId}`), {
+          text: msg.text,
+          date: date.toLocaleString(),
           name: user.displayName,
-          message: {
-            ...friend.messages[uid].message,
-            [Object.keys(friend.messages[uid].message).length]: {
-              text: msg.text,
-              date: date.toLocaleString(),
-              name: user.displayName,
-              id: Object.keys(friend.messages[uid].message).length,
-              image: msg.image,
-            },
-          },
+          id: msgId,
+          image: msg.image,
+        });
+        set(ref(db, `/users/${chat}/messages/${user.uid}/message/${msgId}`), {
+          text: msg.text,
+          date: date.toLocaleString(),
+          name: user.displayName,
+          id: msgId,
+          image: msg.image,
         });
       }
     } else {
@@ -129,11 +119,11 @@ function Chat() {
           id: chat,
           name: friend.name,
           message: {
-            0: {
+            [msgId]: {
               text: msg.text,
               date: date.toLocaleString(),
               name: user.displayName,
-              id: 0,
+              id: msgId,
               image: msg.image,
             },
           },
@@ -142,11 +132,11 @@ function Chat() {
           id: user.uid,
           name: user.displayName,
           message: {
-            0: {
+            [msgId]: {
               text: msg.text,
               date: date.toLocaleString(),
               name: user.displayName,
-              id: 0,
+              id: msgId,
               image: msg.image,
             },
           },
@@ -158,6 +148,7 @@ function Chat() {
 
   function delMsg(e) {
     if (messages.length === 1) {
+      console.log("1");
       set(ref(db, `users/${user.uid}/messages/${chat}`), {
         id: chat,
         name: friend.name,
@@ -170,6 +161,8 @@ function Chat() {
       });
       setMessages([]);
     } else {
+      console.log("2");
+      console.log(e.target.id);
       remove(
         ref(db, `/users/${chat}/messages/${user.uid}/message/${e.target.id}`)
       );
@@ -177,7 +170,6 @@ function Chat() {
         ref(db, `/users/${user.uid}/messages/${chat}/message/${e.target.id}`)
       );
     }
-    setDelToggle(false);
   }
 
   function handleFile(e) {
@@ -222,6 +214,7 @@ function Chat() {
         >
           {friend.messages ? (
             messages.map((msg) => {
+              console.log(msg);
               return (
                 <Message
                   name={msg.name}
@@ -231,9 +224,7 @@ function Chat() {
                   text={msg.text}
                   date={msg.date}
                   delMsg={delMsg}
-                  delToggle={delToggle}
-                  setDelToggle={setDelToggle}
-                />
+                />                                
               );
             })
           ) : (
