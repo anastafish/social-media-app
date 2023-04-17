@@ -24,6 +24,7 @@ import send from "../../images/send.svg";
 import gallery from "../../images/gallery.svg";
 import Message from "@/components/Message";
 
+
 function Chat() {
   const [user, setUser] = useState({});
   const [friend, setFriend] = useState({});

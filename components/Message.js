@@ -16,7 +16,7 @@ function Message({name, id, displayName, image, text, date, delMsg, delToggle, s
                 className={`${name === displayName ? 'bg-green-300' : 'bg-gray-400'}
                  p-3 rounded-md relative`}
                  >
-                    {name === displayName && <Image 
+                    {/* {name === displayName && <Image 
                         src={bin} 
                         width={20} 
                         height={20} 
@@ -24,7 +24,7 @@ function Message({name, id, displayName, image, text, date, delMsg, delToggle, s
                         className='absolute top-1 right-1 cursor-pointer'
                         id={id}
                         onClick={delMsg}
-                        />}
+                        />} */}
                     {image && <Image 
                       src={image} 
                       width={50} 
