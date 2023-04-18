@@ -34,6 +34,7 @@ function Chat() {
   const [user, setUser] = useState({});
   const [friend, setFriend] = useState({});
   const [messages, setMessages] = useState([]);
+  const [oldMessages, setOldMessages] = useState([]);
   const bottomRef = useRef(null);
   const [theme, setTheme] = useContext(UserContext);
   const [play] = useSound("/noti.mp3", { volume: 0.5 });
@@ -70,11 +71,16 @@ function Chat() {
     );
     onValue(msgRef, (snapshot) => {
       if (snapshot.val()) {
-        const msgs = Object.values(snapshot.val());
-        setMessages(msgs);
-        if (msgs[msgs.length - 1].name !== user.displayName) {
+        const msgs = Object.values(snapshot.val());     
+        if (msgs[msgs.length - 1].name !== user.displayName &&
+          (msgs[msgs.length - 1].date) == new Date().toLocaleString()
+          ) {
           play();
         }
+        setMessages(msgs);  
+      }
+      else {
+        setMessages([])
       }
     });
   }, [user]);
@@ -148,7 +154,6 @@ function Chat() {
 
   function delMsg(e) {
     if (messages.length === 1) {
-      console.log("1");
       set(ref(db, `users/${user.uid}/messages/${chat}`), {
         id: chat,
         name: friend.name,
@@ -159,10 +164,7 @@ function Chat() {
         name: user.displayName,
         message: "",
       });
-      setMessages([]);
     } else {
-      console.log("2");
-      console.log(e.target.id);
       remove(
         ref(db, `/users/${chat}/messages/${user.uid}/message/${e.target.id}`)
       );
@@ -214,7 +216,6 @@ function Chat() {
         >
           {friend.messages ? (
             messages.map((msg) => {
-              console.log(msg);
               return (
                 <Message
                   name={msg.name}
@@ -224,6 +225,7 @@ function Chat() {
                   text={msg.text}
                   date={msg.date}
                   delMsg={delMsg}
+                  key={msg.id}
                 />                                
               );
             })
@@ -259,7 +261,8 @@ function Chat() {
           </div>
           <Button
             onClick={sendMessage}
-            className="flex items-center justify-between bg-green-400 p-3 rounded-md"
+            className={`flex items-center justify-between bg-green-400 p-3 rounded-md`}
+            isDisabled={msg.text || msg.image ? false : true}
           >
             <Image src={send} width={25} height={25} alt="send_msg_icon" />
             <h1>Send</h1>

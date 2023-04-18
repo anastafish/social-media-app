@@ -58,13 +58,13 @@ function Message({name, id, displayName, image, text, date, delMsg}) {
                 </div>
         </PopoverTrigger>
         <PopoverContent>
-          <PopoverHeader fontWeight='semibold'>Delete Message</PopoverHeader>
+          <PopoverHeader fontWeight='semibold' textAlign='center'>Delete Message</PopoverHeader>
           <PopoverArrow />
-          <PopoverBody>
+          <PopoverBody className='text-center'>
             Are you sure you want to delete this message?
           </PopoverBody>
-          <PopoverFooter display='flex' justifyContent='flex-end'>
-            <ButtonGroup size='sm'>
+          <PopoverFooter display='flex' justifyContent='center'>
+            <ButtonGroup size='sm' >
               <Button variant='outline' onClick={() => setDelToggle(false)}>Cancel</Button>
               <Button 
                 colorScheme='red' 
