@@ -11,6 +11,7 @@ import { Switch } from '@chakra-ui/react'
 import { UserContext } from "../pages/_app";
 import dark from '../images/dark.svg'
 import chat from '../images/chat.png'
+import home from '../images/home.svg'
 
 
 function Header({ children }) {
@@ -58,17 +59,28 @@ function Header({ children }) {
         >
           <Avatar src={user.photoURL} />
           <h1 className="font-semibold text-center">{user.displayName}</h1>
-        </div>
-        <Link href='/messages'>
+        </div>       
+      <Link href='/' title="Home">
+        <div className="flex flex-col gap-1 items-center">
+          <Image 
+            src={home} 
+            width={30} 
+            height={30} 
+            className='sm:w-[40px] w-[25px]'
+            alt="messages_icon"
+            />  
+      </div>
+      </Link>
+
+      <Link href='/messages' title="Messages">
         <div className="flex flex-col gap-1 items-center">
           <Image 
             src={chat} 
-            width={40} 
-            height={40} 
-            className='sm:w-[45px] w-[25px]'
+            width={30} 
+            height={30} 
+            className='sm:w-[35px] w-[20px]'
             alt="messages_icon"
             />  
-        <h1>Messages</h1>
       </div>
       </Link>
  
