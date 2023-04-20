@@ -84,7 +84,7 @@ export default function Profile() {
   const app = firebase_app;
   const db = getDatabase(app);
   const auth = getAuth(app);
-  const storage = getStorage(app, "gs://social-media-app-753cb.appspot.com");
+  const storage = getStorage(app,'gs://social-media-app-753cb.appspot.com');
 
   function handleChange(e) {
     // convert the file to base64 url
@@ -101,12 +101,16 @@ export default function Profile() {
   async function changePicture() {
     // uploads the selected image to firebase storage to use as profile pic
     if (file) {
-      const storageRef = sRef(storage, `users/${user.uid}` || "");
+      const storageRef = sRef(storage, `users/${user.uid}` || '');
+      uploadString(storageRef, file, 'data_url').then((snapshot) => {
+        console.log('done');
+      })
 
       // gets the picture from firebase storage to set it as profile picture
       getDownloadURL(sRef(storage, `users/${user.uid}`))
         .then((url) => {
           updateProfile(auth.currentUser, {
+            displayName:user.displayName,
             photoURL: url,
           }).catch((err) => console.log(err));
 
@@ -178,10 +182,18 @@ export default function Profile() {
             {userProfile.name}
           </div>
           {user.displayName !== userProfile.name && 
-          <Button onClick={() => router.push(`/messages/${profile}`)}>Message</Button>}
+          <Button 
+          onClick={() => router.push(`/messages/${profile}`)}
+          backgroundColor={theme ? 'gray.300' : 'gray.50'}
+          >
+            Message
+            </Button>}
           {user.displayName === userProfile.name && (
             <div>
-              <Button onClick={() => setIsOpen(true)}>
+              <Button 
+              onClick={() => setIsOpen(true)}
+              backgroundColor={theme ? 'gray.300' : 'gray.50'}
+              >
                 Change Profile Picture
               </Button>
               <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered>

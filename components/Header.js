@@ -27,6 +27,7 @@ function Header({ children }) {
       if (user) {
         const uid = user.uid;
         setUser(user);
+        console.log(user)
         // ...
       } else {
         router.push("/login");
@@ -92,7 +93,7 @@ function Header({ children }) {
           <Switch isChecked={theme} onChange={() => setTheme(prevState => !prevState)}/>
           <Image src={dark} width='35' alt="dark_mode_icon"/>
         </div>
-        <Button onClick={signOut} _hover={{ backgroundColor: "red.500" }}>
+        <Button onClick={signOut} backgroundColor={theme ? '#737D7B' : ''} _hover={{ backgroundColor: "red.500" }}>
           <div className="w-full flex justify-between items-center gap-3">
             <Image src={logout} className="w-[25px] h-[25px]" alt="sign_out" />
           </div>
