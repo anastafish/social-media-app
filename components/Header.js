@@ -27,7 +27,6 @@ function Header({ children }) {
       if (user) {
         const uid = user.uid;
         setUser(user);
-        console.log(user)
         // ...
       } else {
         router.push("/login");

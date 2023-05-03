@@ -32,7 +32,7 @@ import {
   onValue,
 } from "firebase/database";
 import { updateProfile } from "firebase/auth";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import firebase_app from "@/firebase/config";
 import { getAuth } from "firebase/auth";
 import like_icon from "../images/like.svg";
@@ -57,6 +57,7 @@ import {
 } from "react-share";
 import copy from "../images/copy.svg";
 import { UserContext } from "../pages/_app";
+import { motion, useInView, AnimatePresence} from "framer-motion";
 
 
 export default function Post({
@@ -71,6 +72,7 @@ export default function Post({
   uid,
   postComment,
   shares,
+  delay
 }) {
   const app = firebase_app;
   const auth = getAuth(app);
@@ -80,6 +82,9 @@ export default function Post({
   const [shareToggle, setShareToggle] = useState(false);
   const [theme, setTheme] = useContext(UserContext)
   const router = useRouter();
+  const postRef = useRef(null)
+  const isInView = useInView(postRef, {once:true})
+  const [isDeleted, setIsDeleted] = useState(false)
 
   function postClick() {
     router.push(`/posts/${id}`);
@@ -275,215 +280,226 @@ export default function Post({
         console.error(error);
       });
     setDelToggle(false);
+    setIsDeleted(true)
   }
 
   return (
-    <Card maxW="md" width="100%" backgroundColor={theme ? '#899391' : 'white'}>
-      <div>
-        <CardHeader>
-          <Flex spacing="4">
-            <Flex
-              flex="1"
-              gap="4"
-              alignItems="center"
-              flexWrap="wrap"
-              cursor="pointer"
-              onClick={() => router.push(`/profile/${uid}`)}
-            >
-              <Avatar src={photo} name={name} />
-              <Box>
-                <Heading size="sm">{name}</Heading>
-              </Box>
+    <AnimatePresence>
+      <Card
+        as={motion.div}
+        maxW="md"
+        width="100%"
+        backgroundColor={theme ? '#899391' : 'white'}
+        initial={{opacity:0, scale:0}}
+        animate={{
+              opacity:isInView ? [0,0.3,1] : 0,
+              scale:isInView ? [0.2,1] : 0,
+              x:isInView ? [300,200,0] : 500
+              }}
+        transition={{delay:0.1 * delay}}
+        ref={postRef}
+        >
+        <div>
+          <CardHeader>
+            <Flex spacing="4">
+              <Flex
+                flex="1"
+                gap="4"
+                alignItems="center"
+                flexWrap="wrap"
+                cursor="pointer"
+                onClick={() => router.push(`/profile/${uid}`)}
+              >
+                <Avatar src={photo} name={name} />
+                <Box>
+                  <Heading size="sm">{name}</Heading>
+                </Box>
+              </Flex>
+              {user.displayName === name && !post && (
+                <Image
+                  variant="ghost"
+                  onClick={() => setDelToggle(true)}
+                  src={bin}
+                  style={{ width: "30px" }}
+                  alt="delete-button"
+                  className="sm:cursor-pointer cursor-default"
+                />
+              )}
+              <Modal
+                isOpen={delToggle}
+                onClose={() => setDelToggle(false)}
+                isCentered
+              >
+                <ModalOverlay />
+                <ModalContent className="top-0 flex flex-col items-center">
+                  <ModalHeader>Delete Post</ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <h1>Are you Sure you want to delete the Post?</h1>
+                  </ModalBody>
+                  <ModalFooter className="flex items-center justify-center gap-5">
+                    <Button
+                      variant="solid"
+                      bgColor={"red.400"}
+                      id={id}
+                      onClick={delPost}
+                    >
+                      Yes
+                    </Button>
+                    <Button
+                      variant="solid"
+                      bgColor={"green.300"}
+                      onClick={() => setDelToggle(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
             </Flex>
-            {user.displayName === name && !post && (
+          </CardHeader>
+          <CardBody
+            onClick={!post ? postClick : undefined}
+            className={`${!post ? "cursor-pointer" : ""} flex flex-col gap-5`}
+          >
+            <Text>{text}</Text>
+            {image && (
               <Image
-                variant="ghost"
-                onClick={() => setDelToggle(true)}
-                src={bin}
-                style={{ width: "30px" }}
-                alt="delete-button"
-                className="sm:cursor-pointer cursor-default"
+                src={image}
+                alt="post_image"
+                width={20}
+                height={20}
+                className="w-full h-[25rem] rounded-md"
               />
             )}
+          </CardBody>
+        </div>
+        <CardFooter
+          justify="center"
+          gap={0}
+          alignItems="center"
+          flexWrap="wrap"
+          sx={{
+            "& > button": {
+              minW: "136px",
+            },
+          }}
+        >
+          {!valid.isValid && (
+            <Alert
+              status={valid.type}
+              position="absolute"
+              bottom="100px"
+              width="fit-content"
+              rounded="4px"
+              zIndex={10}
+            >
+              <AlertIcon />
+              <AlertTitle>{valid.msg}</AlertTitle>
+            </Alert>
+          )}
+          <div className="flex flex-col w-full justify-between mr-5 h-fit relative">
+            <div className="flex items-center w-full justify-between ">
+              <div
+                className={`heart ${
+                  userLiked.split(",").includes(id) ? "is-active" : ""
+                } sm:cursor-pointer cursor-default`}
+                onClick={like}
+              ></div>
+              <Image
+                src={commentIcon}
+                style={{ width: "30px" }}
+                className={`${!post && "sm:cursor-pointer cursor-default"}`}
+                alt="comment-button"
+                onClick={!post ? postClick : undefined}
+              />
+              <Image
+                onClick={() => {
+                  setShareToggle(true);
+                  shareClick();
+                }}
+                src={share}
+                style={{ width: "30px" }}
+                alt="share-button"
+                className="sm:cursor-pointer cursor-default"
+              />
+            </div>
+            <div className="flex w-full items-center justify-between
+            absolute pr-11 ml-[2.8rem] bottom-0 ">
+            <h1 className="text-[18px]">{likes}</h1>
+            <h1 className="text-[18px]">{postComment.length}</h1>
+            <h1 className="text-[18px] mr-1">{shares}</h1>
+          </div>
             <Modal
-              isOpen={delToggle}
-              onClose={() => setDelToggle(false)}
+              isOpen={shareToggle}
+              onClose={() => setShareToggle(false)}
               isCentered
             >
               <ModalOverlay />
               <ModalContent className="top-0 flex flex-col items-center">
-                <ModalHeader>Delete Post</ModalHeader>
+                <ModalHeader>Share Post</ModalHeader>
                 <ModalCloseButton />
-                <ModalBody>
-                  <h1>Are you Sure you want to delete the Post?</h1>
+                <ModalBody className="flex">
+                  <FacebookShareButton
+                    url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                  >
+                    <FacebookIcon />
+                  </FacebookShareButton>
+                  <WhatsappShareButton
+                    url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                  >
+                    <WhatsappIcon />
+                  </WhatsappShareButton>
+                  <TwitterShareButton
+                    url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                  >
+                    <TwitterIcon />
+                  </TwitterShareButton>
+                  <TelegramShareButton
+                    url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
+                  >
+                    <TelegramIcon />
+                  </TelegramShareButton>
+                  <div className="border-[2px] flex items-center justify-center border-black">
+                    <Image
+                      src={copy}
+                      alt="copy_icon"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `https://social-media-app-fslc.vercel.app/posts/${id}`
+                        );
+                        copied()
+                      }
+                    }
+                      className="cursor-pointer"
+                    />
+                  </div>
                 </ModalBody>
-
-                <ModalFooter className="flex items-center justify-center gap-5">
-                  <Button
-                    variant="solid"
-                    bgColor={"red.400"}
-                    id={id}
-                    onClick={delPost}
-                  >
-                    Yes
-                  </Button>
-                  <Button
-                    variant="solid"
-                    bgColor={"green.300"}
-                    onClick={() => setDelToggle(false)}
-                  >
-                    Cancel
-                  </Button>
-                </ModalFooter>
               </ModalContent>
             </Modal>
-          </Flex>
-        </CardHeader>
-        <CardBody
-          onClick={!post ? postClick : undefined}
-          className={`${!post ? "cursor-pointer" : ""} flex flex-col gap-5`}
-        >
-          <Text>{text}</Text>
-          {image && (
-            <Image
-              src={image}
-              alt="post_image"
-              width={20}
-              height={20}
-              className="w-full h-[25rem] rounded-md"
-            />
-          )}
-        </CardBody>
-      </div>
-      <CardFooter
-        justify="center"
-        gap={0}
-        alignItems="center"
-        flexWrap="wrap"
-        sx={{
-          "& > button": {
-            minW: "136px",
-          },
-        }}
-      >
-        {!valid.isValid && (
-          <Alert
-            status={valid.type}
-            position="absolute"
-            bottom="100px"
-            width="fit-content"
-            rounded="4px"
-            zIndex={10}
-          >
-            <AlertIcon />
-            <AlertTitle>{valid.msg}</AlertTitle>
-          </Alert>
-        )}
-        <div className="flex flex-col w-full justify-between mr-5 h-fit relative">
-          <div className="flex items-center w-full justify-between ">
-            <div
-              className={`heart ${
-                userLiked.split(",").includes(id) ? "is-active" : ""
-              } sm:cursor-pointer cursor-default`}
-              onClick={like}
-            ></div>
-            <Image
-              src={commentIcon}
-              style={{ width: "30px" }}
-              className={`${!post && "sm:cursor-pointer cursor-default"}`}
-              alt="comment-button"
-              onClick={!post ? postClick : undefined}
-            />
-            <Image
-              onClick={() => {
-                setShareToggle(true);
-                shareClick();
-              }}
-              src={share}
-              style={{ width: "30px" }}
-              alt="share-button"
-              className="sm:cursor-pointer cursor-default"
-            />
           </div>
-          <div className="flex w-full items-center justify-between 
-          absolute pr-11 ml-[2.8rem] bottom-0 ">
-          <h1 className="text-[18px]">{likes}</h1>
-          <h1 className="text-[18px]">{postComment.length}</h1>
-          <h1 className="text-[18px] mr-1">{shares}</h1>
-        </div>
-          <Modal
-            isOpen={shareToggle}
-            onClose={() => setShareToggle(false)}
-            isCentered
-          >
-            <ModalOverlay />
-            <ModalContent className="top-0 flex flex-col items-center">
-              <ModalHeader>Share Post</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody className="flex">
-                <FacebookShareButton
-                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
-                >
-                  <FacebookIcon />
-                </FacebookShareButton>
-
-                <WhatsappShareButton
-                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
-                >
-                  <WhatsappIcon />
-                </WhatsappShareButton>
-
-                <TwitterShareButton
-                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
-                >
-                  <TwitterIcon />
-                </TwitterShareButton>
-
-                <TelegramShareButton
-                  url={`https://social-media-app-fslc.vercel.app/posts/${id}`}
-                >
-                  <TelegramIcon />
-                </TelegramShareButton>
-
-                <div className="border-[2px] flex items-center justify-center border-black">
-                  <Image
-                    src={copy}
-                    alt="copy_icon"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `https://social-media-app-fslc.vercel.app/posts/${id}`
-                      );
-                      copied()
-                    }
-                  }
-                    className="cursor-pointer"
-                  />
-                </div>
-              </ModalBody>
-            </ModalContent>
-          </Modal>
-        </div>        
-        <div className="flex items-center mt-3">
-          <Input
-            placeholder="Type a comment"
-            className=""
-            value={comment}
-            onChange={handleChange}
-            onKeyDown={(e) => e.key === "Enter" && newComment()}
-            backgroundColor={theme ? 'gray.300' : 'gray.50'}
-            borderRightRadius='none'
-          />
-          <Button 
-            onClick={newComment}
-            backgroundColor={theme ? 'gray.300' : 'gray.50'}
-            borderLeftRadius='none'
-            fontSize={13}
-            >
-              Comment
-              </Button>
-        </div>
-      </CardFooter>
-      {post && <h1 className={`text-[15px] p-[1rem]`}>{postDate}</h1>}
-    </Card>
+          <div className="flex items-center mt-3">
+            <Input
+              placeholder="Type a comment"
+              className=""
+              value={comment}
+              onChange={handleChange}
+              onKeyDown={(e) => e.key === "Enter" && newComment()}
+              backgroundColor={theme ? 'gray.300' : 'gray.50'}
+              borderRightRadius='none'
+            />
+            <Button
+              onClick={newComment}
+              backgroundColor={theme ? 'gray.300' : 'gray.50'}
+              borderLeftRadius='none'
+              fontSize={13}
+              >
+                Comment
+                </Button>
+          </div>
+        </CardFooter>
+        {post && <h1 className={`text-[15px] p-[1rem]`}>{postDate}</h1>}
+      </Card>
+    </AnimatePresence>
   );
 }

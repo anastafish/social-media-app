@@ -236,6 +236,7 @@ export default function Home() {
                     uid={post.uid}
                     postComment={post.comments}
                     shares={post.shares}
+                    delay={index}
                   />
               );
             })}
